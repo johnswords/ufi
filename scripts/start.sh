@@ -79,8 +79,9 @@ if [ "$TUNNEL" = true ]; then
 
   echo ""
   echo "Starting ngrok tunnel..."
+  NGROK_DOMAIN="${NGROK_DOMAIN:-swords.ngrok.io}"
   NGROK_LOG=$(mktemp)
-  ngrok http "$PORT" --log=stderr 2>"$NGROK_LOG" &
+  ngrok http --url="$NGROK_DOMAIN" "$PORT" --log=stderr 2>"$NGROK_LOG" &
   NGROK_PID=$!
   echo "$NGROK_PID" > "$NGROK_PID_FILE"
 
