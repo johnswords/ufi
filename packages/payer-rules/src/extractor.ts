@@ -284,7 +284,7 @@ export function extractCriteriaFromCmsTexts(texts: string[]): PayerRuleCriterion
 }
 
 export function inferProcedureCodesFromCmsTexts(texts: string[]): InferredProcedureCode[] {
-  const text = texts.map((segment) => normalizeNarrativeText(segment)).join("\n");
+  const text = texts.flatMap((segment) => htmlToSegments(segment)).map(normalizeNarrativeText).join("\n");
   const codes: InferredProcedureCode[] = [];
   const seen = new Set<string>();
 
