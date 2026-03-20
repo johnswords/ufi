@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<response>
+  <status>200</status>
+  <poc>
+    <pocname>Example Practice</pocname>
+    <pocid>PRACTICE-01</pocid>
+  </poc>
+  <poc>
+    <pocname>Second Practice</pocname>
+    <pocid>PRACTICE-02</pocid>
+  </poc>
+</response>

@@ -1,5 +1,5 @@
 {
-  "name": "@ufi/payer-rules",
+  "name": "@ufi/web-demo",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,12 +9,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.json --noEmit false --outDir dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "clean": "rm -rf coverage dist"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.3.14",
-    "@ufi/shared": "workspace:*",
-    "drizzle-orm": "^0.44.7"
+    "@ufi/shared": "workspace:*"
   }
 }

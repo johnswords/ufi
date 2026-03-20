@@ -1,162 +1,269 @@
-import type { PayerRule } from "@ufi/shared";
+import { payerRuleSchema, type PayerRule } from "@ufi/shared";
 
-import {
-  CmsCoverageClient,
-  type CmsArticleDocument,
-  type CmsArticleHcpcCode,
-  type CmsLcdDocument,
-  type CmsLcdSummary,
-  type CmsNcdDocument,
-  type CmsNcdSummary
-} from "./cms-client.js";
-import { extractCriteriaFromCmsTexts } from "./criteria-extractor.js";
-import { type CmsSyncCursor, PayerRulesRepository } from "./storage.js";
+import { extractCriteriaFromNarrative } from "./extractor.js";
+import { htmlToPlainText } from "./text.js";
+import type {
+  CmsArticleHcpcRow,
+  CmsCoverageSyncOptions,
+  CmsCoverageSyncResult,
+  CmsLcdDetailRow,
+  CmsLcdReportRow,
+  CmsNcdDetailRow,
+  CmsNcdReportRow
+} from "./types.js";
 
-export const CMS_SYNC_CURSOR_KEY = "cms-coverage-sync";
-
-export interface SyncCmsCoverageOptions {
-  readonly client: CmsCoverageClient;
-  readonly repository: PayerRulesRepository;
-  readonly now?: () => Date;
+interface InferredCode {
+  readonly cptCode: string;
+  readonly cptDescription: string;
 }
 
-function sortMax(current: string | null, next: string | undefined): string | null {
-  if (!next) {
-    return current;
+const inferredNcdProcedureCodes: Array<{ pattern: RegExp; codes: InferredCode[] }> = [
+  {
+    pattern: /roux-en-y gastric bypass|rygbp/iu,
+    codes: [
+      {
+        cptCode: "43644",
+        cptDescription:
+          "Laparoscopy, surgical, gastric restrictive procedure; with gastric bypass and Roux-en-Y gastroenterostomy"
+      },
+      {
+        cptCode: "43645",
+        cptDescription:
+          "Laparoscopy, surgical, gastric restrictive procedure; with gastric bypass and small intestine reconstruction"
+      },
+      {
+        cptCode: "43846",
+        cptDescription:
+          "Gastric restrictive procedure, with gastric bypass for morbid obesity; with short limb Roux-en-Y gastroenterostomy"
+      },
+      {
+        cptCode: "43847",
+        cptDescription:
+          "Gastric restrictive procedure, with gastric bypass for morbid obesity; with small intestine reconstruction"
+      }
+    ]
+  },
+  {
+    pattern: /adjustable gastric banding|lagb|agb/iu,
+    codes: [
+      {
+        cptCode: "43770",
+        cptDescription:
+          "Laparoscopy, surgical, gastric restrictive procedure; placement of adjustable gastric restrictive device"
+      }
+    ]
+  },
+  {
+    pattern: /sleeve gastrectomy|lsg/iu,
+    codes: [
+      {
+        cptCode: "43775",
+        cptDescription:
+          "Laparoscopy, surgical, gastric restrictive procedure; longitudinal gastrectomy (sleeve gastrectomy)"
+      }
+    ]
+  },
+  {
+    pattern: /biliopancreatic diversion with duodenal switch|bpd\/ds|bpd\/grds/iu,
+    codes: [
+      {
+        cptCode: "43845",
+        cptDescription:
+          "Gastric restrictive procedure with partial gastrectomy, pylorus-preserving duodenoileostomy and ileoileostomy"
+      }
+    ]
+  }
+];
+
+function normalizeExpirationDate(value: string): string | undefined {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.toUpperCase() === "N/A") {
+    return undefined;
   }
 
-  if (!current || next > current) {
-    return next;
+  return trimmed;
+}
+
+function normalizeCmsSourceUrl(baseUrl: string): string {
+  if (/^https?:\/\//u.test(baseUrl)) {
+    return baseUrl;
   }
 
-  return current;
+  if (baseUrl.startsWith("/data/")) {
+    return `https://api.coverage.cms.gov/v1${baseUrl}`;
+  }
+
+  return `https://api.coverage.cms.gov${baseUrl}`;
 }
 
-function isUpdatedAfter(candidate: string, lastSeen: string | null): boolean {
-  return !lastSeen || candidate > lastSeen;
-}
-
-function buildLcdRules(
-  summary: CmsLcdSummary,
-  lcd: CmsLcdDocument,
-  hcpcCodes: CmsArticleHcpcCode[],
-  article: CmsArticleDocument | null,
+function toLcdRules(
+  listing: CmsLcdReportRow,
+  detail: CmsLcdDetailRow,
+  articleCodes: CmsArticleHcpcRow[],
   syncedAt: string
 ): PayerRule[] {
-  const criteria = extractCriteriaFromCmsTexts([
-    lcd.indication,
-    lcd.doc_reqs,
-    lcd.associated_info
-  ]);
+  const criteria = extractCriteriaFromNarrative(
+    detail.indication,
+    detail.associated_info,
+    detail.doc_reqs,
+    detail.coding_guidelines
+  );
 
-  const active = summary.retirement_date === "N/A";
-  const codes = hcpcCodes.length > 0 ? hcpcCodes : [{ hcpc_code_id: `LCD:${summary.document_display_id}`, long_description: summary.title, short_description: summary.title }];
-
-  return codes.map((code) => ({
-    sourceType: "cms_lcd",
-    sourceDocumentId: summary.document_display_id,
-    sourceDocumentVersion: summary.document_version,
-    sourceUrl: summary.url,
-    cptCode: code.hcpc_code_id,
-    cptDescription: code.long_description || code.short_description,
-    payer: "CMS Medicare",
-    payerPlanCategory: summary.contractor_name_type,
-    title: summary.title,
-    criteria,
-    effectiveDate: lcd.rev_eff_date || summary.effective_date,
-    expirationDate: active ? undefined : summary.retirement_date,
-    active,
-    lastSyncedAt: syncedAt
-  }));
-}
-
-function buildNcdRules(summary: CmsNcdSummary, ncd: CmsNcdDocument, syncedAt: string): PayerRule[] {
-  return [
-    {
-      sourceType: "cms_ncd",
-      sourceDocumentId: summary.document_display_id,
-      sourceDocumentVersion: summary.document_version,
-      sourceUrl: `https://api.coverage.cms.gov/v1/data/ncd/?ncdid=${summary.document_id}&ncdver=${summary.document_version}`,
-      cptCode: `NCD:${summary.document_display_id}`,
-      cptDescription: summary.title,
+  return articleCodes.map((articleCode) =>
+    payerRuleSchema.parse({
+      sourceType: "cms_lcd",
+      sourceDocumentId: listing.document_display_id || `L${listing.document_id}`,
+      sourceDocumentVersion: listing.document_version,
+      sourceUrl: normalizeCmsSourceUrl(listing.url),
+      cptCode: articleCode.hcpc_code_id,
+      cptDescription: articleCode.long_description || articleCode.short_description,
       payer: "CMS Medicare",
-      payerPlanCategory: "National Coverage Determination",
-      title: summary.title,
-      criteria: extractCriteriaFromCmsTexts([
-        ncd.item_service_description,
-        ncd.indications_limitations,
-        ncd.reasons_for_denial
-      ]),
-      effectiveDate: ncd.effective_date,
-      expirationDate: ncd.effective_end_date === "N/A" ? undefined : ncd.effective_end_date,
-      active: ncd.effective_end_date === "N/A",
+      title: listing.title,
+      criteria,
+      effectiveDate: listing.effective_date || detail.rev_eff_date || detail.orig_det_eff_date,
+      ...(normalizeExpirationDate(listing.retirement_date) ? { expirationDate: normalizeExpirationDate(listing.retirement_date) } : {}),
+      active: normalizeExpirationDate(listing.retirement_date) === undefined,
       lastSyncedAt: syncedAt
+    })
+  );
+}
+
+function inferNcdCodes(detail: CmsNcdDetailRow): InferredCode[] {
+  const text = htmlToPlainText(`${detail.item_service_description}\n${detail.indications_limitations}`);
+  const codes: InferredCode[] = [];
+  const seen = new Set<string>();
+
+  for (const mapping of inferredNcdProcedureCodes) {
+    if (!mapping.pattern.test(text)) {
+      continue;
     }
-  ];
+
+    for (const code of mapping.codes) {
+      if (!seen.has(code.cptCode)) {
+        seen.add(code.cptCode);
+        codes.push(code);
+      }
+    }
+  }
+
+  return codes;
 }
 
-async function resolveLcdArticleCodes(
-  client: CmsCoverageClient,
-  summary: CmsLcdSummary,
-  token: string
-): Promise<{ article: CmsArticleDocument | null; hcpcCodes: CmsArticleHcpcCode[] }> {
-  const related = await client.getLcdRelatedDocuments(summary.document_id, summary.document_version, token);
-  const articleRef = related.find((item) => item.r_article_id && item.r_article_version);
-  if (articleRef?.r_article_id && articleRef.r_article_version) {
-    const article = await client.getArticle(articleRef.r_article_id, articleRef.r_article_version, token);
-    const hcpcCodes = await client.getArticleHcpcCodes(articleRef.r_article_id, articleRef.r_article_version, token);
-    return { article, hcpcCodes };
-  }
+function toNcdRules(listing: CmsNcdReportRow, detail: CmsNcdDetailRow, syncedAt: string): PayerRule[] {
+  const criteria = extractCriteriaFromNarrative(
+    detail.indications_limitations,
+    detail.item_service_description,
+    detail.revision_history
+  );
+  const codes = inferNcdCodes(detail);
 
-  const hcpcCodes = await client.getLcdHcpcCodes(summary.document_id, summary.document_version, token);
-  return { article: null, hcpcCodes };
+  return codes.map((code) =>
+    payerRuleSchema.parse({
+      sourceType: "cms_ncd",
+      sourceDocumentId: detail.document_display_id,
+      sourceDocumentVersion: detail.document_version,
+      sourceUrl: normalizeCmsSourceUrl(listing.url),
+      cptCode: code.cptCode,
+      cptDescription: code.cptDescription,
+      payer: "CMS Medicare",
+      title: detail.title,
+      criteria,
+      effectiveDate: detail.effective_date,
+      ...(normalizeExpirationDate(detail.effective_end_date) ? { expirationDate: normalizeExpirationDate(detail.effective_end_date) } : {}),
+      active: normalizeExpirationDate(detail.effective_end_date) === undefined,
+      lastSyncedAt: syncedAt
+    })
+  );
 }
 
-export async function syncCmsCoverage(options: SyncCmsCoverageOptions): Promise<{
-  readonly insertedRuleCount: number;
-  readonly cursor: CmsSyncCursor;
-}> {
-  const syncedAt = (options.now ?? (() => new Date()))().toISOString();
-  const cursor = await options.repository.getCursor(CMS_SYNC_CURSOR_KEY);
-  const token = await options.client.fetchLicenseToken();
+export async function syncCmsCoverageRules(
+  options: CmsCoverageSyncOptions
+): Promise<CmsCoverageSyncResult> {
+  const now = options.now ?? (() => new Date());
+  const syncedAt = now().toISOString();
+  const pageSize = options.pageSize ?? 100;
 
-  const lcdSummaries = await options.client.listFinalLcds();
-  const ncdSummaries = await options.client.listNationalNcds();
+  await options.repository.migrate();
 
-  const lcdCursor = lcdSummaries.reduce<string | null>(
-    (maxValue, item) => sortMax(maxValue, item.updated_on_sort),
-    cursor?.lcdUpdatedOnSort ?? null
-  );
-  const ncdCursor = ncdSummaries.reduce<string | null>(
-    (maxValue, item) => sortMax(maxValue, item.last_updated_sort),
-    cursor?.ncdUpdatedOnSort ?? null
-  );
+  let processedDocuments = 0;
+  let upsertedRules = 0;
 
-  const rules: PayerRule[] = [];
+  const lcdCursor = await options.repository.getSyncCursor("cms_lcd");
+  const lcdListings = await options.client.listAllFinalLcds(pageSize);
+  const nextLcdCursor = lcdListings
+    .map((listing) => listing.updated_on_sort)
+    .sort()
+    .at(-1) ?? lcdCursor?.cursor ?? null;
 
-  for (const summary of lcdSummaries.filter((item) => isUpdatedAfter(item.updated_on_sort, cursor?.lcdUpdatedOnSort ?? null))) {
-    const lcd = await options.client.getLcd(summary.document_id, summary.document_version, token);
-    const { article, hcpcCodes } = await resolveLcdArticleCodes(options.client, summary, token);
-    rules.push(...buildLcdRules(summary, lcd, hcpcCodes, article, syncedAt));
+  for (const listing of lcdListings) {
+    if (lcdCursor?.cursor && listing.updated_on_sort <= lcdCursor.cursor) {
+      continue;
+    }
+
+    const detail = await options.client.getLcd(listing.document_id, listing.document_version);
+    const relatedDocuments = await options.client.getLcdRelatedDocuments(
+      listing.document_id,
+      listing.document_version
+    );
+    const article = relatedDocuments.find(
+      (document) => document.r_article_id !== null && document.r_article_version !== null
+    );
+    if (!article?.r_article_id || !article.r_article_version) {
+      continue;
+    }
+
+    const articleCodes = await options.client.getArticleHcpcCodes(
+      article.r_article_id,
+      article.r_article_version,
+      pageSize
+    );
+    const rules = toLcdRules(listing, detail, articleCodes, syncedAt);
+    await options.repository.upsertRules(rules);
+    processedDocuments += 1;
+    upsertedRules += rules.length;
   }
 
-  for (const summary of ncdSummaries.filter((item) => isUpdatedAfter(item.last_updated_sort, cursor?.ncdUpdatedOnSort ?? null))) {
-    const ncd = await options.client.getNcd(summary.document_id, summary.document_version);
-    rules.push(...buildNcdRules(summary, ncd, syncedAt));
+  if (nextLcdCursor) {
+    await options.repository.setSyncCursor({
+      source: "cms_lcd",
+      cursor: nextLcdCursor,
+      lastSuccessfulRunAt: syncedAt
+    });
   }
 
-  await options.repository.upsertRules(rules);
+  const ncdCursor = await options.repository.getSyncCursor("cms_ncd");
+  const ncdListings = await options.client.listAllNationalNcds(pageSize);
+  const nextNcdCursor = ncdListings
+    .map((listing) => listing.last_updated_sort)
+    .sort()
+    .at(-1) ?? ncdCursor?.cursor ?? null;
 
-  const nextCursor: CmsSyncCursor = {
-    lcdUpdatedOnSort: lcdCursor,
-    ncdUpdatedOnSort: ncdCursor,
-    lastRunAt: syncedAt
-  };
+  for (const listing of ncdListings) {
+    if (ncdCursor?.cursor && listing.last_updated_sort <= ncdCursor.cursor) {
+      continue;
+    }
 
-  await options.repository.setCursor(CMS_SYNC_CURSOR_KEY, nextCursor);
+    const detail = await options.client.getNcd(listing.document_id, listing.document_version);
+    const rules = toNcdRules(listing, detail, syncedAt);
+    if (rules.length === 0) {
+      continue;
+    }
+
+    await options.repository.upsertRules(rules);
+    processedDocuments += 1;
+    upsertedRules += rules.length;
+  }
+
+  if (nextNcdCursor) {
+    await options.repository.setSyncCursor({
+      source: "cms_ncd",
+      cursor: nextNcdCursor,
+      lastSuccessfulRunAt: syncedAt
+    });
+  }
 
   return {
-    insertedRuleCount: rules.length,
-    cursor: nextCursor
+    processedDocuments,
+    upsertedRules
   };
 }

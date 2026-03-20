@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<response>
+  <status>200</status>
+  <poc>
+    <pocname>Albany Orthopedics</pocname>
+    <pocid>ALBANY01</pocid>
+  </poc>
+  <poc>
+    <pocname>Syracuse Spine</pocname>
+    <pocid>SYRACUSE02</pocid>
+  </poc>
+</response>
