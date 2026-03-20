@@ -79,7 +79,11 @@ if [ "$TUNNEL" = true ]; then
 
   echo ""
   echo "Starting ngrok tunnel..."
-  NGROK_DOMAIN="${NGROK_DOMAIN:-swords.ngrok.io}"
+  NGROK_DOMAIN="${NGROK_DOMAIN:-}"
+  if [ -z "$NGROK_DOMAIN" ]; then
+    echo "Error: NGROK_DOMAIN not set. Add your ngrok domain to .env (e.g., NGROK_DOMAIN=your-domain.ngrok.io)."
+    exit 1
+  fi
   NGROK_LOG=$(mktemp)
   ngrok http --url="$NGROK_DOMAIN" "$PORT" --log=stderr 2>"$NGROK_LOG" &
   NGROK_PID=$!
