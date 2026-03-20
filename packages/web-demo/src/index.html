@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UFI MedEnt — Surgical Approval Predictor</title>
+  <style>
+    :root {
+      --color-bg: #f8f9fa;
+      --color-surface: #ffffff;
+      --color-border: #dee2e6;
+      --color-text: #212529;
+      --color-text-muted: #6c757d;
+      --color-primary: #2563eb;
+      --color-primary-hover: #1d4ed8;
+      --color-approved: #059669;
+      --color-approved-bg: #d1fae5;
+      --color-denied: #dc2626;
+      --color-denied-bg: #fee2e2;
+      --color-needs-docs: #d97706;
+      --color-needs-docs-bg: #fef3c7;
+      --color-warning-bg: #fefce8;
+      --color-warning-border: #facc15;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: -0.02em;
+    }
+
+    header h1 span {
+      color: var(--color-primary);
+    }
+
+    header p {
+      color: var(--color-text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .phi-disclaimer {
+      background: var(--color-warning-bg);
+      border: 1px solid var(--color-warning-border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: #713f12;
+    }
+
+    .phi-disclaimer > strong:first-child { display: block; margin-bottom: 2px; }
+
+    .card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 6px;
+      color: var(--color-text);
+    }
+
+    select, textarea {
+      width: 100%;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.9375rem;
+      font-family: inherit;
+      background: var(--color-surface);
+      color: var(--color-text);
+      transition: border-color 0.15s;
+    }
+
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 220px;
+      font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+      font-size: 0.8125rem;
+      line-height: 1.6;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .field-group { margin-top: 16px; }
+    .field-group:first-child { margin-top: 0; }
+
+    .sample-row {
+      margin-bottom: 16px;
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 28px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--color-primary-hover);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    .btn.loading .spinner { display: inline-block; }
+    .btn.loading .btn-label { display: none; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Results */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1.125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .verdict-approved {
+      background: var(--color-approved-bg);
+      color: var(--color-approved);
+    }
+
+    .verdict-denied {
+      background: var(--color-denied-bg);
+      color: var(--color-denied);
+    }
+
+    .verdict-needs-documentation {
+      background: var(--color-needs-docs-bg);
+      color: var(--color-needs-docs);
+    }
+
+    .verdict-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .confidence {
+      font-size: 0.95rem;
+      color: var(--color-text-muted);
+    }
+
+    .confidence strong {
+      font-size: 1.5rem;
+      color: var(--color-text);
+    }
+
+    .result-section {
+      margin-top: 20px;
+    }
+
+    .result-section h3 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--color-text);
+    }
+
+    .result-section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .result-section li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    .result-section li:last-child { border-bottom: none; }
+
+    .criteria-icon {
+      display: inline-block;
+      width: 20px;
+      text-align: center;
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+
+    .severity-required {
+      color: var(--color-denied);
+      font-weight: 600;
+    }
+
+    .severity-supporting {
+      color: var(--color-needs-docs);
+    }
+
+    .missing-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .missing-badge {
+      display: inline-block;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    .missing-badge.required {
+      background: var(--color-denied-bg);
+      color: var(--color-denied);
+    }
+
+    .missing-badge.supporting {
+      background: var(--color-needs-docs-bg);
+      color: var(--color-needs-docs);
+    }
+
+    .error-banner {
+      background: var(--color-denied-bg);
+      border: 1px solid var(--color-denied);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      color: var(--color-denied);
+      font-size: 0.875rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .error-banner.visible { display: block; }
+
+    .stub-notice {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.8125rem;
+      color: #1e40af;
+      margin-top: 16px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px 0 12px;
+      color: var(--color-text-muted);
+      font-size: 0.8125rem;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-overlay.visible { display: flex; }
+
+    .loading-card {
+      background: var(--color-surface);
+      border-radius: 12px;
+      padding: 40px 48px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 420px;
+      width: 90%;
+    }
+
+    .loading-pulse {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--color-border);
+      border-top-color: var(--color-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    .loading-card h3 {
+      font-size: 1.125rem;
+      margin-bottom: 8px;
+    }
+
+    .loading-card p {
+      color: var(--color-text-muted);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    #loading-step {
+      font-weight: 600;
+      color: var(--color-primary);
+      font-size: 0.8125rem;
+      margin-top: 16px;
+      min-height: 1.2em;
+    }
+
+    #loading-timer {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      margin-top: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .field-row { grid-template-columns: 1fr; }
+      .container { padding: 16px 12px; }
+      header h1 { font-size: 1.375rem; }
+      .verdict-row { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="loading-card">
+      <div class="loading-pulse"></div>
+      <h3>Analyzing Clinical Note</h3>
+      <p>Running local AI extraction against payer coverage rules. This typically takes 30-90 seconds on CPU.</p>
+      <div id="loading-step">Extracting clinical criteria...</div>
+      <div id="loading-timer"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <h1><span>UFI MedEnt</span> — Surgical Approval Predictor</h1>
+      <p>Paste physician notes, select a procedure and carrier, and predict prior authorization outcome.</p>
+    </header>
+
+    <div class="phi-disclaimer">
+      <strong>&#9888;&#65039; PHI Notice</strong>
+      This demo processes text using a local AI model (Ollama). Notes are not stored or transmitted externally. However, <b>do not paste real patient information</b> unless this is running on your practice's local network.
+    </div>
+
+    <div class="card">
+      <div class="sample-row">
+        <label for="sample-select">Load a Sample Note</label>
+        <select id="sample-select">
+          <option value="">— Select a sample —</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="note-input">Physician Notes</label>
+        <textarea id="note-input" placeholder="Paste physician / clinical notes here..."></textarea>
+        <div class="char-count"><span id="char-count">0</span> characters</div>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <label for="cpt-select">CPT Code</label>
+          <select id="cpt-select">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+        <div>
+          <label for="carrier-select">Insurance Carrier</label>
+          <select id="carrier-select">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="predict-btn" class="btn btn-primary" disabled>
+        <span class="spinner"></span>
+        <span class="btn-label">&#128269; Predict Approval</span>
+      </button>
+    </div>
+
+    <div id="error-banner" class="error-banner"></div>
+
+    <div id="results" class="card">
+      <div class="verdict-row">
+        <div id="verdict-badge" class="verdict-badge"></div>
+        <div class="confidence">
+          Confidence: <strong id="confidence-value"></strong>
+        </div>
+      </div>
+
+      <div id="reasoning-section" class="result-section">
+        <h3>Reasoning</h3>
+        <ul id="reasoning-list"></ul>
+      </div>
+
+      <div id="missing-section" class="result-section">
+        <h3>Missing Documentation</h3>
+        <ul id="missing-list"></ul>
+      </div>
+
+      <div id="payer-context-section" class="result-section" style="display:none">
+        <h3>Payer Context</h3>
+        <ul id="payer-context-list"></ul>
+      </div>
+
+      <div id="rewrite-section" class="result-section" style="display:none">
+        <h3>Suggested Note Rewrite</h3>
+        <p style="font-size:0.8125rem;color:var(--color-text-muted);margin-bottom:10px">
+          This rewrite addresses the missing documentation. Fill in the [BRACKETED PLACEHOLDERS] with actual patient values.
+        </p>
+        <div id="rewrite-content" style="white-space:pre-wrap;font-family:'SF Mono','Fira Code','Roboto Mono',monospace;font-size:0.8125rem;line-height:1.6;background:#f1f5f9;border:1px solid var(--color-border);border-radius:6px;padding:16px;max-height:400px;overflow-y:auto"></div>
+        <button id="copy-rewrite-btn" class="btn" style="background:#059669;color:white;margin-top:12px;width:auto;padding:8px 20px;font-size:0.875rem">
+          <span class="btn-label">Copy to Clipboard</span>
+        </button>
+        <span id="copy-confirmation" style="display:none;margin-left:12px;color:var(--color-approved);font-size:0.875rem;font-weight:600">Copied!</span>
+      </div>
+    </div>
+
+    <footer>
+      UFI MedEnt &middot; Surgical prior authorization intelligence &middot; Demo v0.1
+    </footer>
+  </div>
+
+  <script>
+    const noteInput = document.getElementById("note-input");
+    const charCount = document.getElementById("char-count");
+    const sampleSelect = document.getElementById("sample-select");
+    const cptSelect = document.getElementById("cpt-select");
+    const carrierSelect = document.getElementById("carrier-select");
+    const predictBtn = document.getElementById("predict-btn");
+    const resultsEl = document.getElementById("results");
+    const errorBanner = document.getElementById("error-banner");
+
+    let samples = [];
+    let loaded = { cpt: false, carriers: false, samples: false };
+
+    function checkReady() {
+      const hasCpt = cptSelect.value !== "";
+      const hasCarrier = carrierSelect.value !== "";
+      const hasNote = noteInput.value.trim().length > 0;
+      predictBtn.disabled = !(hasCpt && hasCarrier && hasNote && loaded.cpt && loaded.carriers);
+    }
+
+    noteInput.addEventListener("input", () => {
+      charCount.textContent = noteInput.value.length;
+      checkReady();
+    });
+    cptSelect.addEventListener("change", checkReady);
+    carrierSelect.addEventListener("change", checkReady);
+
+    // Fetch CPT codes
+    fetch("/api/cpt-codes")
+      .then(r => r.json())
+      .then(data => {
+        cptSelect.innerHTML = '<option value="">— Select CPT code —</option>';
+        for (const code of data.codes) {
+          const opt = document.createElement("option");
+          opt.value = code.code;
+          opt.textContent = code.code + " — " + code.description;
+          cptSelect.appendChild(opt);
+        }
+        loaded.cpt = true;
+        checkReady();
+      })
+      .catch(() => {
+        cptSelect.innerHTML = '<option value="">Failed to load</option>';
+      });
+
+    // Fetch carriers
+    fetch("/api/carriers")
+      .then(r => r.json())
+      .then(data => {
+        carrierSelect.innerHTML = '<option value="">— Select carrier —</option>';
+        for (const carrier of data.carriers) {
+          const opt = document.createElement("option");
+          opt.value = carrier.name;
+          opt.textContent = carrier.name + (carrier.ruleCount > 0 ? " (" + carrier.ruleCount + " rules)" : "");
+          carrierSelect.appendChild(opt);
+        }
+        loaded.carriers = true;
+        checkReady();
+      })
+      .catch(() => {
+        carrierSelect.innerHTML = '<option value="">Failed to load</option>';
+      });
+
+    // Fetch samples
+    fetch("/api/samples")
+      .then(r => r.json())
+      .then(data => {
+        samples = data.samples;
+        sampleSelect.innerHTML = '<option value="">— Select a sample —</option>';
+        for (const s of samples) {
+          const opt = document.createElement("option");
+          opt.value = s.id;
+          opt.textContent = s.title;
+          sampleSelect.appendChild(opt);
+        }
+        loaded.samples = true;
+      })
+      .catch(() => {
+        sampleSelect.innerHTML = '<option value="">Failed to load samples</option>';
+      });
+
+    sampleSelect.addEventListener("change", () => {
+      const sample = samples.find(s => s.id === sampleSelect.value);
+      if (!sample) return;
+      noteInput.value = sample.noteText;
+      charCount.textContent = sample.noteText.length;
+      cptSelect.value = sample.cptCode;
+      carrierSelect.value = sample.carrier;
+      checkReady();
+      // Scroll to note input
+      noteInput.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    // Loading overlay helpers
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const loadingStep = document.getElementById("loading-step");
+    const loadingTimer = document.getElementById("loading-timer");
+    let timerInterval = null;
+
+    function showLoading() {
+      loadingOverlay.classList.add("visible");
+      const startTime = Date.now();
+      const steps = [
+        { at: 0, text: "Extracting clinical criteria..." },
+        { at: 5, text: "Identifying ICD-10 codes and evidence..." },
+        { at: 15, text: "Matching against payer coverage rules..." },
+        { at: 30, text: "Evaluating medical necessity criteria..." },
+        { at: 50, text: "Computing approval prediction..." },
+        { at: 70, text: "Generating documentation suggestions..." },
+        { at: 90, text: "Almost done..." }
+      ];
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        loadingTimer.textContent = elapsed + "s elapsed";
+        const currentStep = steps.filter(s => s.at <= elapsed).pop();
+        if (currentStep) loadingStep.textContent = currentStep.text;
+      }, 1000);
+    }
+
+    function hideLoading() {
+      loadingOverlay.classList.remove("visible");
+      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    }
+
+    // Predict
+    predictBtn.addEventListener("click", async () => {
+      predictBtn.classList.add("loading");
+      predictBtn.disabled = true;
+      resultsEl.classList.remove("visible");
+      errorBanner.classList.remove("visible");
+      showLoading();
+
+      try {
+        const res = await fetch("/api/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            noteText: noteInput.value,
+            cptCode: cptSelect.value,
+            carrier: carrierSelect.value
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: "Request failed" }));
+          throw new Error(err.message || err.error || "Prediction failed");
+        }
+
+        const result = await res.json();
+        renderResult(result);
+      } catch (err) {
+        errorBanner.textContent = "Error: " + err.message;
+        errorBanner.classList.add("visible");
+      } finally {
+        hideLoading();
+        predictBtn.classList.remove("loading");
+        checkReady();
+      }
+    });
+
+    function renderResult(result) {
+      // Verdict badge
+      const badge = document.getElementById("verdict-badge");
+      const verdictIcons = {
+        approved: "\u2705",
+        denied: "\u274C",
+        "needs-documentation": "\u26A0\uFE0F"
+      };
+      const verdictLabels = {
+        approved: "Approved",
+        denied: "Denied",
+        "needs-documentation": "Needs Documentation"
+      };
+      badge.className = "verdict-badge verdict-" + result.verdict;
+      badge.textContent = (verdictIcons[result.verdict] || "") + " " + (verdictLabels[result.verdict] || result.verdict);
+
+      // Confidence
+      document.getElementById("confidence-value").textContent = Math.round(result.confidence * 100) + "%";
+
+      // Reasoning
+      const reasoningList = document.getElementById("reasoning-list");
+      reasoningList.innerHTML = "";
+      for (const reason of result.reasoning) {
+        const li = document.createElement("li");
+        li.textContent = reason;
+        reasoningList.appendChild(li);
+      }
+
+      // Missing criteria
+      const missingSection = document.getElementById("missing-section");
+      const missingList = document.getElementById("missing-list");
+      missingList.innerHTML = "";
+
+      if (result.missingCriteria.length === 0) {
+        missingSection.style.display = "none";
+      } else {
+        missingSection.style.display = "block";
+        for (const item of result.missingCriteria) {
+          const li = document.createElement("li");
+          li.className = "missing-item";
+
+          const icon = document.createElement("span");
+          icon.className = "criteria-icon";
+          icon.textContent = item.severity === "required" ? "\u274C" : "\u26A0\uFE0F";
+
+          const text = document.createElement("span");
+          text.textContent = item.description;
+
+          const badge = document.createElement("span");
+          badge.className = "missing-badge " + item.severity;
+          badge.textContent = item.severity;
+
+          li.appendChild(icon);
+          li.appendChild(text);
+          li.appendChild(badge);
+          missingList.appendChild(li);
+        }
+      }
+
+      // Payer context
+      const payerContextSection = document.getElementById("payer-context-section");
+      const payerContextList = document.getElementById("payer-context-list");
+      payerContextList.innerHTML = "";
+      const hasPayerContext = result.paRequired !== undefined || result.metricsContext;
+      if (hasPayerContext) {
+        payerContextSection.style.display = "block";
+        if (result.paRequired !== undefined) {
+          const li = document.createElement("li");
+          li.innerHTML = result.paRequired
+            ? "<strong>Prior authorization IS required</strong> for this CPT code + carrier." + (result.paNote ? " " + result.paNote : "")
+            : "<strong>Prior authorization is NOT required</strong> for this CPT code + carrier." + (result.paNote ? " " + result.paNote : "");
+          payerContextList.appendChild(li);
+        }
+        if (result.metricsContext) {
+          const mc = result.metricsContext;
+          const li = document.createElement("li");
+          const pct = Math.round(mc.approvalRate * 100);
+          const cat = mc.serviceCategory ? mc.serviceCategory.toLowerCase() + " " : "";
+          li.textContent = "Based on " + mc.payer + " " + mc.reportingPeriod + " data: " + pct + "% of " + cat + "prior auth requests are approved.";
+          payerContextList.appendChild(li);
+        }
+      } else {
+        payerContextSection.style.display = "none";
+      }
+
+      // Suggested rewrite
+      const rewriteSection = document.getElementById("rewrite-section");
+      const rewriteContent = document.getElementById("rewrite-content");
+      if (result.suggestedRewrite) {
+        rewriteContent.textContent = result.suggestedRewrite;
+        rewriteSection.style.display = "block";
+      } else {
+        rewriteSection.style.display = "none";
+      }
+
+      resultsEl.classList.add("visible");
+      resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    // Copy to clipboard
+    document.getElementById("copy-rewrite-btn").addEventListener("click", async () => {
+      const text = document.getElementById("rewrite-content").textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        const confirm = document.getElementById("copy-confirmation");
+        confirm.style.display = "inline";
+        setTimeout(() => { confirm.style.display = "none"; }, 2000);
+      } catch {
+        // Fallback for older browsers
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        const confirm = document.getElementById("copy-confirmation");
+        confirm.style.display = "inline";
+        setTimeout(() => { confirm.style.display = "none"; }, 2000);
+      }
+    });
+  </script>
+</body>
+</html>

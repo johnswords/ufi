@@ -1,4 +1,4 @@
-import { structuredCriteriaSchema, type StructuredCriteria } from "../domain/index.js";
+import { type StructuredCriteria, structuredCriteriaSchema } from "../domain/index.js";
 
 export interface PhiAuditEvent {
   readonly timestamp: string;
@@ -16,9 +16,7 @@ export interface StructuredCriteriaGateResultRejected {
   readonly reason: string;
 }
 
-export type StructuredCriteriaGateResult =
-  | StructuredCriteriaGateResultPassed
-  | StructuredCriteriaGateResultRejected;
+export type StructuredCriteriaGateResult = StructuredCriteriaGateResultPassed | StructuredCriteriaGateResultRejected;
 
 export interface StructuredCriteriaGateOptions {
   readonly onAudit?: (event: PhiAuditEvent) => void;
@@ -32,16 +30,26 @@ interface Detector {
 const detectors: Detector[] = [
   { category: "person name", pattern: /\b(?:patient|member|beneficiary|name)\s*:\s*[A-Z][a-z]+\s+[A-Z][a-z]+\b/iu },
   { category: "person name", pattern: /\b(?:patient|member|beneficiary)\s+(?:is|was)\s+[A-Z][a-z]+\s+[A-Z][a-z]+\b/iu },
-  { category: "street address", pattern: /\b\d{1,5}\s+[A-Za-z0-9.'-]+\s(?:Street|St|Road|Rd|Avenue|Ave|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct)\b/iu },
+  {
+    category: "street address",
+    pattern:
+      /\b\d{1,5}\s+[A-Za-z0-9.'-]+\s(?:Street|St|Road|Rd|Avenue|Ave|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct)\b/iu
+  },
   { category: "city state zip", pattern: /\b[A-Z][a-z]+,\s*[A-Z]{2}\s+\d{5}(?:-\d{4})?\b/u },
   { category: "date", pattern: /\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b/u },
-  { category: "date", pattern: /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+\d{1,2},\s+\d{4}\b/iu },
+  {
+    category: "date",
+    pattern: /\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+\d{1,2},\s+\d{4}\b/iu
+  },
   { category: "phone number", pattern: /\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?){2}\d{4}\b/u },
   { category: "fax number", pattern: /\bfax[:\s]*(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?){2}\d{4}\b/iu },
   { category: "email address", pattern: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/iu },
   { category: "social security number", pattern: /\b\d{3}-\d{2}-\d{4}\b/u },
   { category: "medical record number", pattern: /\b(?:MRN|medical\s+record|chart)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu },
-  { category: "health plan beneficiary number", pattern: /\b(?:member|beneficiary|subscriber)\s*(?:id|number|no)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu },
+  {
+    category: "health plan beneficiary number",
+    pattern: /\b(?:member|beneficiary|subscriber)\s*(?:id|number|no)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu
+  },
   { category: "account number", pattern: /\baccount\s*(?:id|number|no)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu },
   { category: "license number", pattern: /\b(?:license|certificate)\s*(?:id|number|no)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu },
   { category: "vehicle identifier", pattern: /\b(?:VIN|license\s+plate)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu },
@@ -51,7 +59,10 @@ const detectors: Detector[] = [
   { category: "ip address", pattern: /\b(?:\d{1,3}\.){3}\d{1,3}\b/u },
   { category: "biometric identifier", pattern: /\b(?:fingerprint|retina|iris\s+scan|voiceprint)\b/iu },
   { category: "full-face photograph", pattern: /\b(?:full[-\s]?face|facial photograph|patient photo|headshot)\b/iu },
-  { category: "unique patient identifier", pattern: /\b(?:patient|case|claim)\s*(?:id|number|no)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu }
+  {
+    category: "unique patient identifier",
+    pattern: /\b(?:patient|case|claim)\s*(?:id|number|no)\s*[:#-]?\s*[A-Z0-9-]{5,}\b/iu
+  }
 ];
 
 const scannerIgnoredPaths = new Set(["agentId", "timestamp", "cptCode"]);

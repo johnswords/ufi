@@ -86,8 +86,12 @@ Browser (React/Next.js)
 Demo API (Hono/Fastify)
     |
     ├── POST /demo/predict  { noteText, cptCode, carrier }
-    │     └── extractCriteria(noteText) → matchPayerRules(cpt, carrier) → predict → gaps
-    │     └── returns PredictionResult
+    │     └── extractCriteria(noteText) → matchPayerRules(cpt, carrier) → predict → gaps → suggestRewrite
+    │     └── returns PredictionResult + suggestedRewrite
+    │
+    ├── POST /demo/rewrite  { noteText, prediction, rules }
+    │     └── suggestRewrite(noteText, prediction, rules)
+    │     └── returns { rewrittenNote: string }
     │
     ├── GET /demo/carriers
     │     └── query payer-rules DB for distinct carriers
@@ -120,6 +124,7 @@ The on-prem agent wraps these in a LangGraph state machine with MAPI + CDA input
 - **CarrierSelector**: dropdown populated from `/demo/carriers`
 - **SampleSelector**: optional — load a bundled example note
 - **ResultsPanel**: verdict badge (approve/deny/needs-docs), confidence meter, criteria checklist (matched/missing), reasoning narrative
+- **RewritePanel**: suggested rewrite of physician note addressing missing criteria, with copy-to-clipboard button. Uses `[brackets]` for values the physician must fill in. Only shown when verdict is `needs-documentation` or `denied`.
 
 ### Sample Notes
 
@@ -139,6 +144,10 @@ Bundle 3-5 synthetic physician notes covering:
 - [ ] Pasted note text is NOT persisted, logged, or cached by the API
 - [ ] Works with both local Ollama and cloud LLM backend
 - [ ] Results show: verdict, confidence, matched criteria, missing items, reasoning
+- [ ] When verdict is `needs-documentation` or `denied`, a suggested rewrite is generated
+- [ ] Suggested rewrite preserves all original clinical content
+- [ ] Suggested rewrite adds sections addressing each missing criterion with `[bracket]` placeholders for values the physician must fill in
+- [ ] Copy-to-clipboard button copies the suggested rewrite text
 
 ## Validation
 

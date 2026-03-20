@@ -68,8 +68,8 @@ docs/specs/agent/SPEC.md                  # On-prem agent (owns PHI)
 docs/specs/cda-parser/SPEC.md             # CDA R2 parser library
 docs/specs/cloud-api/SPEC.md              # Cloud analytics API (no PHI)
 docs/specs/payer-rules/SPEC.md            # Payer rules ingestion pipeline
-docs/specs/web-demo/SPEC.md              # Paste-in web demo (no EHR required)
-docs/specs/cross-cutting/SPEC.md         # Multi-surface specs (test data, etc.)
+docs/specs/web-demo/SPEC.md               # Paste-in web demo (no EHR required)
+docs/specs/cross-cutting/SPEC.md          # Multi-surface specs (test data, etc.)
 docs/specs/<surface>/<feature>.md         # Feature-level specs
 ```
 

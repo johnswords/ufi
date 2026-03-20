@@ -7,6 +7,8 @@ export type MapiStatusCode =
   | 422
   | 423
   | 424
+  | 425
+  | 426
   | 427
   | 428
   | 429
@@ -24,6 +26,8 @@ export const mapiStatusNames: Record<MapiStatusCode, string> = {
   422: "FIELD_EMPTY",
   423: "FIELD_INVALID",
   424: "NO_ACCESS",
+  425: "KEY_EXISTS",
+  426: "NOT_FOUND",
   427: "EXPIRED",
   428: "INVALID_USER",
   429: "INVALID_PASSWORD",
@@ -80,6 +84,20 @@ export class MapiAccessError extends MapiError {
   }
 }
 
+export class MapiConflictError extends MapiError {
+  public constructor() {
+    super(425);
+    this.name = "MapiConflictError";
+  }
+}
+
+export class MapiNotFoundError extends MapiError {
+  public constructor() {
+    super(426);
+    this.name = "MapiNotFoundError";
+  }
+}
+
 export class MapiPatientAuthError extends MapiError {
   public constructor(statusCode: 428 | 429 | 430 | 431) {
     super(statusCode);
@@ -108,6 +126,10 @@ export function createMapiError(statusCode: MapiStatusCode): MapiError {
       return new MapiValidationError(statusCode);
     case 424:
       return new MapiAccessError();
+    case 425:
+      return new MapiConflictError();
+    case 426:
+      return new MapiNotFoundError();
     case 427:
     case 432:
     case 433:

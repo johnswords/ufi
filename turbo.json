@@ -21,6 +21,10 @@
       ],
       "outputs": []
     },
+    "lint": {
+      "dependsOn": [],
+      "outputs": []
+    },
     "clean": {
       "cache": false
     }

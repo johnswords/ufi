@@ -44,13 +44,7 @@ This is the only component that handles PHI.
 
 ## Current Contracts
 
-None -- greenfield.
-
-## Target Contracts
-
-> These contracts are NOT yet active. Promote to Current Contracts after implementation lands.
-
-### TC-1: MAPI Client
+### CC-1: MAPI Client
 
 Encapsulates the full MAPI auth flow and data queries.
 
@@ -60,6 +54,20 @@ Encapsulates the full MAPI auth flow and data queries.
 - Supported queries: `patient_procedures`, `patient_clinical_notes`, `patient_problems`, `patient_insurance_providers`, `patient_medications`, `patient_assessment_plan`
 
 -- *Source: `docs/specs/agent/mapi-client.md`*
+
+### CC-2: PHI De-identification Gate
+
+- Input: any data object intended for cloud transmission
+- Output: validated de-identified object, or rejection
+- Enforces HIPAA Safe Harbor 18-identifier removal
+- **Allowlist-based**: only explicitly permitted fields pass through (defaults to rejection)
+- Runs a structural validator + content scanner (checks string values for patterns like SSN, phone, email, dates)
+
+-- *Source: `docs/specs/agent/phi-gate.md`*
+
+## Target Contracts
+
+> These contracts are NOT yet active. Promote to Current Contracts after implementation lands.
 
 ### TC-2: Clinical Criteria Extraction
 
@@ -79,17 +87,18 @@ Encapsulates the full MAPI auth flow and data queries.
 - Pure function (no side effects, no PHI) -- testable in isolation
 - Verdicts: `approved` | `denied` | `needs-documentation`
 
--- *Source: future feature spec*
+-- *Source: `docs/specs/agent/cda-extraction-graph.md`*
 
-### TC-4: PHI De-identification Gate
+### TC-5: Note Rewrite Suggestion
 
-- Input: any data object intended for cloud transmission
-- Output: validated de-identified object, or rejection
-- Enforces HIPAA Safe Harbor 18-identifier removal
-- **Allowlist-based**: only explicitly permitted fields pass through (defaults to rejection)
-- Runs a structural validator + content scanner (checks string values for patterns like SSN, phone, email, dates)
+- Input: original physician note text + `PredictionResult` + matched `PayerRule[]`
+- Output: rewritten note addressing missing criteria, with `[bracket]` placeholders for values the physician must supply
+- Backed by local Ollama LLM (same model as extraction)
+- Preserves all original clinical content; adds documentation for missing criteria
+- Only invoked when verdict is `needs-documentation` or `denied`
+- The rewrite is a suggestion, not a clinical document — the physician reviews and fills in placeholders before use
 
--- *Source: `docs/specs/agent/phi-gate.md`*
+-- *Source: `docs/specs/agent/cda-extraction-graph.md`*
 
 ## When Feature Specs Are Required
 

@@ -53,13 +53,7 @@ No patient data is involved -- payer rules are public policy documents.
 
 ## Current Contracts
 
-None -- greenfield.
-
-## Target Contracts
-
-> These contracts are NOT yet active. Promote to Current Contracts after implementation lands.
-
-### TC-1: CMS Coverage API Sync
+### CC-1: CMS Coverage API Sync
 
 - Fetch LCD/NCD data from `api.coverage.cms.gov`
 - Handle license token acquisition for LCD/Article detail endpoints
@@ -70,7 +64,7 @@ None -- greenfield.
 
 -- *Source: `docs/specs/payer-rules/cms-coverage-sync.md`*
 
-### TC-2: PayerRule Schema
+### CC-2: PayerRule Schema
 
 Normalized rule structure:
 
@@ -90,6 +84,24 @@ Normalized rule structure:
 
 -- *Source: `docs/specs/payer-rules/cms-coverage-sync.md`*
 
+## Target Contracts
+
+### TC-3: PA Requirement Lists
+
+- Per-CPT, per-payer binary signal: does this procedure require prior authorization?
+- Queryable alongside existing payer rules
+- Enables prediction shortcut (no PA required = skip extraction)
+
+-- *Source: `docs/specs/payer-rules/pa-requirement-lists.md`*
+
+### TC-4: Payer Transparency Metrics (CMS-0057-F)
+
+- Payer-reported approval rates, denial rates, turnaround times
+- Used to calibrate prediction confidence against empirical base rates
+- Seeded from UHC quarterly stats (available now), expandable to all payers post-March 31, 2026
+
+-- *Source: `docs/specs/payer-rules/transparency-metrics.md`*
+
 ## When Feature Specs Are Required
 
 - Adding a new payer source (Phase 2 commercial payers)
@@ -105,6 +117,12 @@ Normalized rule structure:
 - Postgres upsert: integration tests with test database
 - Idempotency: run sync twice, assert no duplicates or data corruption
 - Schema validation: PayerRule objects validated against Zod schema
+
+## Deployment Notes
+
+- **Testing and single-node on-prem:** PGlite (Postgres compiled to WASM) is used for test suites and may serve single-node on-prem deployments where installing a full Postgres server is impractical.
+- **Production cloud:** Production cloud deployments should use a real Postgres instance (managed or self-hosted).
+- **Transparent switch:** The Drizzle ORM abstraction layer handles the difference. Application code uses Drizzle queries and does not depend on whether the underlying engine is PGlite or Postgres. No code changes are required to switch between them — only the connection configuration differs.
 
 ## References
 

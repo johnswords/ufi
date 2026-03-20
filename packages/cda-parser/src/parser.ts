@@ -1,12 +1,12 @@
-import {
-  type AssessmentPlan,
-  type CdaDocument,
-  type ClinicalNote,
-  type InsuranceProvider,
-  type Medication,
-  type Problem,
-  type Procedure,
-  type VitalSign
+import type {
+  AssessmentPlan,
+  CdaDocument,
+  ClinicalNote,
+  InsuranceProvider,
+  Medication,
+  Problem,
+  Procedure,
+  VitalSign
 } from "@ufi/shared";
 import { XMLParser, XMLValidator } from "fast-xml-parser";
 
@@ -23,10 +23,7 @@ const parser = new XMLParser({
 const sectionMatchers = {
   clinicalNotes: {
     codes: new Set(["34109-9", "11506-3"]),
-    templateIds: new Set([
-      "2.16.840.1.113883.10.20.22.2.20",
-      "2.16.840.1.113883.10.20.22.2.20.1"
-    ])
+    templateIds: new Set(["2.16.840.1.113883.10.20.22.2.20", "2.16.840.1.113883.10.20.22.2.20.1"])
   },
   problems: {
     codes: new Set(["11450-4"]),
@@ -73,9 +70,7 @@ function ensureArray<T>(value: T | T[] | undefined | null): T[] {
 }
 
 function asRecord(value: unknown): Record<string, unknown> | undefined {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? (value as Record<string, unknown>)
-    : undefined;
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
 }
 
 function asString(value: unknown): string | undefined {
@@ -152,15 +147,12 @@ function parseHl7Timestamp(value: string | undefined): string | undefined {
     return `${year}-${month}-${day}T00:00:00.000Z`;
   }
 
-  const match = normalized.match(
-    /^(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?(\d{2})?(?:([+-]\d{2})(\d{2}))?$/
-  );
+  const match = normalized.match(/^(\d{4})(\d{2})(\d{2})(\d{2})?(\d{2})?(\d{2})?(?:([+-]\d{2})(\d{2}))?$/);
   if (!match) {
     return undefined;
   }
 
-  const [, year, month, day, hour = "00", minute = "00", second = "00", offsetHour, offsetMinute] =
-    match;
+  const [, year, month, day, hour = "00", minute = "00", second = "00", offsetHour, offsetMinute] = match;
 
   if (offsetHour && offsetMinute) {
     return `${year}-${month}-${day}T${hour}:${minute}:${second}${offsetHour}:${offsetMinute}`;
@@ -267,10 +259,7 @@ function parseClinicalNotes(section: SectionNode): ClinicalNote[] {
 
   return entries.flatMap((entry, index) => {
     const act = getNestedRecord(entry, "act") ?? getNestedRecord(entry, "observation");
-    const text =
-      getNestedString(act, "text") ??
-      collectText(asRecord(act)?.text).join(" ").trim() ??
-      sectionText;
+    const text = getNestedString(act, "text") ?? collectText(asRecord(act)?.text).join(" ").trim() ?? sectionText;
 
     if (!text) {
       return [];
@@ -290,8 +279,7 @@ function parseClinicalNotes(section: SectionNode): ClinicalNote[] {
 function parseProblems(section: SectionNode): Problem[] {
   return ensureArray(section.entry).flatMap((entry) => {
     const observation =
-      getNestedRecord(entry, "act", "entryRelationship", "observation") ??
-      getNestedRecord(entry, "observation");
+      getNestedRecord(entry, "act", "entryRelationship", "observation") ?? getNestedRecord(entry, "observation");
     const code = getNestedString(observation, "value", "code") ?? getNestedString(observation, "code", "code");
     const description =
       getNestedString(observation, "value", "displayName") ??
@@ -338,8 +326,7 @@ function parseMedications(section: SectionNode): Medication[] {
       getNestedRecord(entry, "substanceAdministration", "consumable", "manufacturedProduct", "manufacturedMaterial") ??
       getNestedRecord(entry, "supply");
     const code = getNestedString(supply, "code", "code");
-    const name =
-      getNestedString(supply, "code", "displayName") ?? getNestedString(supply, "name");
+    const name = getNestedString(supply, "code", "displayName") ?? getNestedString(supply, "name");
 
     if (!name) {
       return [];
@@ -386,7 +373,10 @@ function parseAssessmentPlan(section: SectionNode): AssessmentPlan | null {
     return null;
   }
 
-  const parts = paragraphs.split(/\n+/u).map((part) => part.trim()).filter(Boolean);
+  const parts = paragraphs
+    .split(/\n+/u)
+    .map((part) => part.trim())
+    .filter(Boolean);
   const assessment = parts.find((part) => /assessment/i.test(part));
   const plan = parts.find((part) => /plan/i.test(part));
 

@@ -52,10 +52,7 @@ export class CmsCoverageClient {
       return this.cachedLicenseToken.token;
     }
 
-    const envelope = await this.requestJson<{ Token?: string; token?: string }>(
-      "/v1/metadata/license-agreement/",
-      {}
-    );
+    const envelope = await this.requestJson<{ Token?: string; token?: string }>("/v1/metadata/license-agreement/", {});
     const token = envelope.data[0]?.Token ?? envelope.data[0]?.token;
     if (!token) {
       throw new CmsClientError("CMS license agreement response did not include a bearer token.", {
@@ -110,10 +107,7 @@ export class CmsCoverageClient {
     return lcd;
   }
 
-  public async getLcdRelatedDocuments(
-    lcdId: number,
-    version: number
-  ): Promise<CmsLcdRelatedDocumentRow[]> {
+  public async getLcdRelatedDocuments(lcdId: number, version: number): Promise<CmsLcdRelatedDocumentRow[]> {
     const envelope = await this.requestJson<CmsLcdRelatedDocumentRow>(
       "/v1/data/lcd/related-documents",
       {
@@ -126,11 +120,7 @@ export class CmsCoverageClient {
     return envelope.data;
   }
 
-  public async getArticleHcpcCodes(
-    articleId: number,
-    version: number,
-    pageSize = 100
-  ): Promise<CmsArticleHcpcRow[]> {
+  public async getArticleHcpcCodes(articleId: number, version: number, pageSize = 100): Promise<CmsArticleHcpcRow[]> {
     return this.collectPages<CmsArticleHcpcRow>(
       "/v1/data/article/hcpc-code",
       pageSize,

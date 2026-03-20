@@ -1,4 +1,4 @@
 export {
-  validateStructuredCriteriaForCloudSync as validateForCloudSync,
-  scanStructuredCriteriaForPhi
+  scanStructuredCriteriaForPhi,
+  validateStructuredCriteriaForCloudSync as validateForCloudSync
 } from "@ufi/shared";

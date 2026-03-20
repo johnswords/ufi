@@ -1,15 +1,5 @@
-import {
-  MapiRateLimitError,
-  MapiTokenError,
-  createMapiError,
-  type MapiStatusCode
-} from "./errors.js";
-import type {
-  MapiDataQuery,
-  MapiPatientDataResponse,
-  MapiQueryPatientDataInput,
-  PocLocation
-} from "./types.js";
+import { createMapiError, MapiRateLimitError, type MapiStatusCode, MapiTokenError } from "./errors.js";
+import type { MapiDataQuery, MapiPatientDataResponse, MapiQueryPatientDataInput, PocLocation } from "./types.js";
 import { parseMapiResponseXml } from "./xml.js";
 
 const defaultBaseUrl = "https://www.medentmobile.com/mapi/services";
@@ -71,11 +61,7 @@ export class MapiClient {
     return response.pocLocations;
   }
 
-  public async getPatientToken(
-    pocId: string,
-    patientId: string,
-    patientPassword: string
-  ): Promise<string> {
+  public async getPatientToken(pocId: string, patientId: string, patientPassword: string): Promise<string> {
     const response = await this.postForm("index.php", {
       registration_id: this.registrationId,
       poc_id: pocId,
@@ -122,11 +108,7 @@ export class MapiClient {
       };
     }
 
-    if (
-      (response.statusCode === 427 || response.statusCode === 432) &&
-      input.refreshCredentials &&
-      !hasRefreshed
-    ) {
+    if ((response.statusCode === 427 || response.statusCode === 432) && input.refreshCredentials && !hasRefreshed) {
       const refreshedToken = await this.getPatientToken(
         input.pocId,
         input.refreshCredentials.patientId,

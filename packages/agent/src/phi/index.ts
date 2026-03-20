@@ -1,6 +1,6 @@
 export {
-  scanStructuredCriteriaForPhi,
-  type StructuredCriteriaGateResult as GateResult,
   type PhiAuditEvent,
+  type StructuredCriteriaGateResult as GateResult,
+  scanStructuredCriteriaForPhi,
   validateStructuredCriteriaForCloudSync as validateForCloudSync
 } from "@ufi/shared";

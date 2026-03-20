@@ -1,4 +1,4 @@
-import { payerRuleSchema, type PayerRule } from "@ufi/shared";
+import { type PayerRule, payerRuleSchema } from "@ufi/shared";
 
 import { extractCriteriaFromNarrative, inferProcedureCodesFromCmsTexts } from "./extractor.js";
 import { htmlToPlainText } from "./text.js";
@@ -58,7 +58,9 @@ function toLcdRules(
       title: listing.title,
       criteria,
       effectiveDate: listing.effective_date || detail.rev_eff_date || detail.orig_det_eff_date,
-      ...(normalizeExpirationDate(listing.retirement_date) ? { expirationDate: normalizeExpirationDate(listing.retirement_date) } : {}),
+      ...(normalizeExpirationDate(listing.retirement_date)
+        ? { expirationDate: normalizeExpirationDate(listing.retirement_date) }
+        : {}),
       active: normalizeExpirationDate(listing.retirement_date) === undefined,
       lastSyncedAt: syncedAt
     })
@@ -88,16 +90,16 @@ function toNcdRules(listing: CmsNcdReportRow, detail: CmsNcdDetailRow, syncedAt:
       title: detail.title,
       criteria,
       effectiveDate: detail.effective_date,
-      ...(normalizeExpirationDate(detail.effective_end_date) ? { expirationDate: normalizeExpirationDate(detail.effective_end_date) } : {}),
+      ...(normalizeExpirationDate(detail.effective_end_date)
+        ? { expirationDate: normalizeExpirationDate(detail.effective_end_date) }
+        : {}),
       active: normalizeExpirationDate(detail.effective_end_date) === undefined,
       lastSyncedAt: syncedAt
     })
   );
 }
 
-export async function syncCmsCoverageRules(
-  options: CmsCoverageSyncOptions
-): Promise<CmsCoverageSyncResult> {
+export async function syncCmsCoverageRules(options: CmsCoverageSyncOptions): Promise<CmsCoverageSyncResult> {
   const now = options.now ?? (() => new Date());
   const syncedAt = now().toISOString();
   const pageSize = options.pageSize ?? 100;
@@ -109,10 +111,13 @@ export async function syncCmsCoverageRules(
 
   const lcdCursor = await options.repository.getSyncCursor("cms_lcd");
   const lcdListings = await options.client.listAllFinalLcds(pageSize);
-  const nextLcdCursor = lcdListings
-    .map((listing) => listing.updated_on_sort)
-    .sort()
-    .at(-1) ?? lcdCursor?.cursor ?? null;
+  const nextLcdCursor =
+    lcdListings
+      .map((listing) => listing.updated_on_sort)
+      .sort()
+      .at(-1) ??
+    lcdCursor?.cursor ??
+    null;
 
   for (const listing of lcdListings) {
     if (lcdCursor?.cursor && listing.updated_on_sort <= lcdCursor.cursor) {
@@ -120,10 +125,7 @@ export async function syncCmsCoverageRules(
     }
 
     const detail = await options.client.getLcd(listing.document_id, listing.document_version);
-    const relatedDocuments = await options.client.getLcdRelatedDocuments(
-      listing.document_id,
-      listing.document_version
-    );
+    const relatedDocuments = await options.client.getLcdRelatedDocuments(listing.document_id, listing.document_version);
     const article = relatedDocuments.find(
       (document) => document.r_article_id !== null && document.r_article_version !== null
     );
@@ -152,10 +154,13 @@ export async function syncCmsCoverageRules(
 
   const ncdCursor = await options.repository.getSyncCursor("cms_ncd");
   const ncdListings = await options.client.listAllNationalNcds(pageSize);
-  const nextNcdCursor = ncdListings
-    .map((listing) => listing.last_updated_sort)
-    .sort()
-    .at(-1) ?? ncdCursor?.cursor ?? null;
+  const nextNcdCursor =
+    ncdListings
+      .map((listing) => listing.last_updated_sort)
+      .sort()
+      .at(-1) ??
+    ncdCursor?.cursor ??
+    null;
 
   for (const listing of ncdListings) {
     if (ncdCursor?.cursor && listing.last_updated_sort <= ncdCursor.cursor) {

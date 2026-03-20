@@ -1,19 +1,13 @@
-import { readFileSync } from "node:fs";
 import { Buffer } from "node:buffer";
+import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
 import { CdaParseError, parseCdaDocument } from "../src/index.js";
 
 const completeFixture = readFileSync(new URL("./fixtures/complete-cda.xml", import.meta.url), "utf8");
-const missingSectionsFixture = readFileSync(
-  new URL("./fixtures/missing-sections-cda.xml", import.meta.url),
-  "utf8"
-);
-const templateIdFixture = readFileSync(
-  new URL("./fixtures/template-id-cda.xml", import.meta.url),
-  "utf8"
-);
+const missingSectionsFixture = readFileSync(new URL("./fixtures/missing-sections-cda.xml", import.meta.url), "utf8");
+const templateIdFixture = readFileSync(new URL("./fixtures/template-id-cda.xml", import.meta.url), "utf8");
 
 describe("parseCdaDocument", () => {
   it("parses a raw CDA XML fixture into typed domain objects", () => {
@@ -45,9 +39,7 @@ describe("parseCdaDocument", () => {
       recordedAt: "2026-03-19T10:30:00-05:00"
     });
     expect(document.raw.ClinicalDocument).toBeDefined();
-    expect(
-      JSON.stringify(document.raw).includes("This content should remain available in the raw output.")
-    ).toBe(true);
+    expect(JSON.stringify(document.raw).includes("This content should remain available in the raw output.")).toBe(true);
   });
 
   it("parses base64 encoded CDA content", () => {
@@ -87,10 +79,7 @@ describe("parseCdaDocument", () => {
   });
 
   it("throws a typed error for malformed XML", () => {
-    const malformedFixture = readFileSync(
-      new URL("./fixtures/malformed-cda.xml", import.meta.url),
-      "utf8"
-    );
+    const malformedFixture = readFileSync(new URL("./fixtures/malformed-cda.xml", import.meta.url), "utf8");
 
     let error: unknown;
 
@@ -111,10 +100,7 @@ describe("parseCdaDocument", () => {
   });
 
   it("throws a typed error for invalid base64 input", () => {
-    const invalidBase64Fixture = readFileSync(
-      new URL("./fixtures/invalid-base64.txt", import.meta.url),
-      "utf8"
-    );
+    const invalidBase64Fixture = readFileSync(new URL("./fixtures/invalid-base64.txt", import.meta.url), "utf8");
 
     let error: unknown;
 

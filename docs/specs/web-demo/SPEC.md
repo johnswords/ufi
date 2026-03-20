@@ -2,6 +2,8 @@
 
 ## Purpose
 
+> **Status: Placeholder scaffold.** This package contains only workspace configuration. No UI or API implementation exists yet. The target contracts below define the planned demo surface.
+
 A browser-based demonstration interface that allows users to paste physician notes, select a CPT code and insurance carrier, and receive an approval prediction — without any Medent EHR connection. This is the primary sales and evaluation tool: prospects can see the prediction engine in action with real (or sample) clinical notes before committing to a full on-prem deployment.
 
 ## Owned Surface

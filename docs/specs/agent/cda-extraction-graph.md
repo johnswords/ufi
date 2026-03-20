@@ -82,6 +82,9 @@ SHARED CORE PIPELINE:
          v
    identifyGaps         -- list missing/insufficient documentation
          |
+         v
+   suggestRewrite       -- LLM rewrites note to address gaps (optional)
+         |
     ┌────┴────┐
     v         v
   [done]   [humanReview]  -- conditional: if confidence < threshold
@@ -100,6 +103,7 @@ export function extractCriteria(noteText: string, llm: BaseChatModel): Promise<S
 export function matchPayerRules(cptCode: string, carrier: string, db: PayerRulesDB): Promise<PayerRule[]>;
 export function predictOutcome(criteria: StructuredCriteria, rules: PayerRule[]): PredictionResult;
 export function identifyGaps(criteria: StructuredCriteria, rules: PayerRule[]): MissingCriteriaItem[];
+export function suggestRewrite(originalNote: string, prediction: PredictionResult, rules: PayerRule[], llm: BaseChatModel): Promise<string>;
 ```
 
 The on-prem agent wraps these in LangGraph with MAPI + CDA adapters. The web demo calls them directly.

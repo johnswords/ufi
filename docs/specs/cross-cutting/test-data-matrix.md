@@ -48,6 +48,17 @@ None. All test data is synthetic. No real patient information.
 - `payer-rules` (provides the rule structure that fixtures snapshot)
 - `cda-parser` (consumes CDA-formatted versions of test notes)
 
+## Existing Primitives
+
+The following test helpers already exist and should be used as building blocks for the test data matrix:
+
+- **`packages/shared/src/testing/fixtures.ts`**
+  - `createStructuredCriteriaFixture(overrides?)` — builds a `StructuredCriteria` object with sensible defaults (CPT 27447 / TKR, Medicare Part B, failed PT + functional limitation evidence, 0.92 confidence). Accepts partial overrides for any field.
+  - `createPayerRuleFixture(overrides?)` — builds a `PayerRule` object with defaults (CMS LCD L33411, CPT 43775 / bariatric, BMI threshold + comorbidity criteria). Accepts partial overrides for any field.
+  - Both fixtures are re-exported from `@ufi/shared` via `packages/shared/src/index.ts`.
+
+These builders produce objects that conform to the Zod schemas in `packages/shared/src/domain/index.ts` (`structuredCriteriaSchema`, `payerRuleSchema`). The test data matrix scenarios should compose on top of these fixtures rather than duplicating their default construction logic.
+
 ## Design
 
 ### Test Scenario Structure

@@ -3,10 +3,15 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
+  MapiAccessError,
+  MapiClient,
+  MapiConflictError,
+  MapiNotFoundError,
   MapiPatientAuthError,
+  MapiRateLimitError,
   MapiTokenError,
-  MapiValidationError,
-  MapiClient
+  MapiUnsupportedError,
+  MapiValidationError
 } from "../src/index.js";
 
 function readFixture(name: string): string {
@@ -77,9 +82,7 @@ describe("MapiClient", () => {
       ])
     });
 
-    await expect(client.getPatientToken("PRACTICE-01", "portal-user", "secret")).resolves.toBe(
-      "TOKEN-123"
-    );
+    await expect(client.getPatientToken("PRACTICE-01", "portal-user", "secret")).resolves.toBe("TOKEN-123");
   });
 
   it("queries patient data and joins multiple queries with #", async () => {
@@ -195,5 +198,123 @@ describe("MapiClient", () => {
         queries: ["patient_clinical_notes"]
       })
     ).rejects.toBeInstanceOf(MapiValidationError);
+  });
+
+  it("throws MapiUnsupportedError for 420 NOT_IMPLEMENTED", async () => {
+    const client = new MapiClient({
+      registrationId: "reg-123",
+      fetchImpl: createFixtureFetch([
+        {
+          endpoint: "index.php",
+          responseFixture: "error-420-not-implemented.xml"
+        }
+      ])
+    });
+
+    await expect(
+      client.queryPatientData({
+        pocId: "PRACTICE-01",
+        token: "TOKEN-123",
+        queries: ["patient_clinical_notes"]
+      })
+    ).rejects.toBeInstanceOf(MapiUnsupportedError);
+  });
+
+  it("throws MapiRateLimitError for 421 OVER_LIMIT after exhausting retries with exponential backoff", async () => {
+    const callTimestamps: number[] = [];
+    const overLimitFixture: RecordedRequest = {
+      endpoint: "index.php",
+      responseFixture: "error-421-over-limit.xml"
+    };
+
+    const client = new MapiClient({
+      registrationId: "reg-123",
+      rateLimitRetries: 2,
+      rateLimitBackoffMs: 10,
+      fetchImpl: (async (input, init) => {
+        callTimestamps.push(Date.now());
+        const url = String(input);
+        expect(url).toContain(overLimitFixture.endpoint);
+        return new Response(readFixture(overLimitFixture.responseFixture), {
+          status: 200,
+          headers: { "content-type": "application/xml" }
+        });
+      }) as typeof fetch
+    });
+
+    await expect(
+      client.queryPatientData({
+        pocId: "PRACTICE-01",
+        token: "TOKEN-123",
+        queries: ["patient_clinical_notes"]
+      })
+    ).rejects.toBeInstanceOf(MapiRateLimitError);
+
+    expect(callTimestamps).toHaveLength(3);
+
+    const firstGap = callTimestamps[1]! - callTimestamps[0]!;
+    const secondGap = callTimestamps[2]! - callTimestamps[1]!;
+    expect(firstGap).toBeGreaterThanOrEqual(8);
+    expect(secondGap).toBeGreaterThan(firstGap * 0.8);
+  });
+
+  it("throws MapiAccessError for 424 NO_ACCESS", async () => {
+    const client = new MapiClient({
+      registrationId: "reg-123",
+      fetchImpl: createFixtureFetch([
+        {
+          endpoint: "index.php",
+          responseFixture: "error-424-no-access.xml"
+        }
+      ])
+    });
+
+    await expect(
+      client.queryPatientData({
+        pocId: "PRACTICE-01",
+        token: "TOKEN-123",
+        queries: ["patient_clinical_notes"]
+      })
+    ).rejects.toBeInstanceOf(MapiAccessError);
+  });
+
+  it("throws MapiConflictError for 425 KEY_EXISTS", async () => {
+    const client = new MapiClient({
+      registrationId: "reg-123",
+      fetchImpl: createFixtureFetch([
+        {
+          endpoint: "index.php",
+          responseFixture: "error-425-key-exists.xml"
+        }
+      ])
+    });
+
+    await expect(
+      client.queryPatientData({
+        pocId: "PRACTICE-01",
+        token: "TOKEN-123",
+        queries: ["patient_clinical_notes"]
+      })
+    ).rejects.toBeInstanceOf(MapiConflictError);
+  });
+
+  it("throws MapiNotFoundError for 426 NOT_FOUND", async () => {
+    const client = new MapiClient({
+      registrationId: "reg-123",
+      fetchImpl: createFixtureFetch([
+        {
+          endpoint: "index.php",
+          responseFixture: "error-426-not-found.xml"
+        }
+      ])
+    });
+
+    await expect(
+      client.queryPatientData({
+        pocId: "PRACTICE-01",
+        token: "TOKEN-123",
+        queries: ["patient_clinical_notes"]
+      })
+    ).rejects.toBeInstanceOf(MapiNotFoundError);
   });
 });

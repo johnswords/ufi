@@ -48,13 +48,7 @@ interface CdaDocument {
 
 ## Current Contracts
 
-None -- greenfield.
-
-## Target Contracts
-
-> These contracts are NOT yet active. Promote to Current Contracts after implementation lands.
-
-### TC-1: CDA R2 Section Mapping
+### CC-1: CDA R2 Section Mapping
 
 - Map CDA R2 template OIDs to domain model types
 - Handle the specific CDA structure Medent produces (may differ from generic CDA R2 -- needs real sample data to confirm)
@@ -63,13 +57,17 @@ None -- greenfield.
 
 -- *Source: `docs/specs/cda-parser/cda-r2-section-mapping.md`*
 
-### TC-2: Base64 Decode Pipeline
+### CC-2: Base64 Decode Pipeline
 
 - Accept base64-encoded input (as MAPI returns it)
 - Decode, parse XML, validate basic CDA structure (root element, required headers)
 - Return typed `CdaDocument` or throw typed parse error with context
 
 -- *Source: `docs/specs/cda-parser/cda-r2-section-mapping.md`*
+
+## Target Contracts
+
+None remaining. All target contracts have been promoted to current.
 
 ## When Feature Specs Are Required
 

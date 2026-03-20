@@ -7,11 +7,7 @@ import { describe, expect, it } from "vitest";
 import { CmsCoverageClient } from "../src/client.js";
 import type { CmsFetchLike } from "../src/types.js";
 
-const fixtureDirectory = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "fixtures",
-  "cms"
-);
+const fixtureDirectory = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "cms");
 
 function loadFixture(name: string): string {
   return readFileSync(path.join(fixtureDirectory, name), "utf8");
@@ -49,11 +45,12 @@ describe("CmsCoverageClient", () => {
       const url = new URL(input);
       requests.push({
         url: url.pathname + url.search,
-        authorization: init?.headers instanceof Headers
-          ? init.headers.get("authorization")
-          : Array.isArray(init?.headers)
-            ? null
-            : (init?.headers as Record<string, string> | undefined)?.authorization ?? null
+        authorization:
+          init?.headers instanceof Headers
+            ? init.headers.get("authorization")
+            : Array.isArray(init?.headers)
+              ? null
+              : ((init?.headers as Record<string, string> | undefined)?.authorization ?? null)
       });
 
       if (url.pathname === "/v1/metadata/license-agreement/") {
@@ -73,9 +70,7 @@ describe("CmsCoverageClient", () => {
       }
 
       if (url.pathname === "/v1/data/article/hcpc-code" && url.searchParams.get("articleid") === "57145") {
-        return jsonResponse(
-          url.searchParams.get("next_token") === "page-2" ? articlePageTwo : articlePageOne
-        );
+        return jsonResponse(url.searchParams.get("next_token") === "page-2" ? articlePageTwo : articlePageOne);
       }
 
       throw new Error(`Unexpected request: ${url.pathname}${url.search}`);

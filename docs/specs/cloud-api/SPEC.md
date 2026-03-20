@@ -2,6 +2,8 @@
 
 ## Purpose
 
+> **Status: Placeholder scaffold.** This package contains only workspace configuration and type re-exports. No service implementation exists yet. The target contracts below define the planned API surface.
+
 Optional cloud endpoint that receives de-identified structured criteria from on-prem agents, stores them for analytics, and serves payer rule updates back to agents. This component NEVER receives PHI.
 
 ## Owned Surface

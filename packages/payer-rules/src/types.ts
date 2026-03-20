@@ -1,4 +1,4 @@
-import type { PayerRule } from "@ufi/shared";
+import type { PaRequirement, PayerRule, PayerTransparencyMetrics } from "@ufi/shared";
 
 export interface CmsApiStatus {
   readonly id: number;
@@ -16,9 +16,7 @@ export interface CmsApiEnvelope<T> {
   readonly data: T[];
 }
 
-export interface CmsFetchLike {
-  (input: string, init?: RequestInit): Promise<Response>;
-}
+export type CmsFetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
 export interface CmsClientOptions {
   readonly fetchImplementation?: CmsFetchLike;
@@ -149,4 +147,9 @@ export interface PayerRulesRepositoryLike {
   getSyncCursor(source: CmsSyncCursor["source"]): Promise<CmsSyncCursor | null>;
   setSyncCursor(cursor: CmsSyncCursor): Promise<void>;
   upsertRules(rules: readonly PayerRule[]): Promise<void>;
+  upsertPaRequirements(requirements: readonly PaRequirement[]): Promise<void>;
+  getPaRequirements(cptCode: string): Promise<PaRequirement[]>;
+  upsertTransparencyMetrics(metrics: readonly PayerTransparencyMetrics[]): Promise<void>;
+  getTransparencyMetrics(payer: string): Promise<PayerTransparencyMetrics[]>;
+  getAllTransparencyMetrics(): Promise<PayerTransparencyMetrics[]>;
 }

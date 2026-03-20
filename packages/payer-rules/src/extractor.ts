@@ -98,11 +98,7 @@ const inferredProcedureCodeMappings: Array<{ pattern: RegExp; codes: InferredPro
   }
 ];
 
-function pushUnique(
-  target: PayerRuleCriterion[],
-  seen: Set<string>,
-  criterion: PayerRuleCriterion
-): void {
+function pushUnique(target: PayerRuleCriterion[], seen: Set<string>, criterion: PayerRuleCriterion): void {
   const key = JSON.stringify(criterion);
   if (!seen.has(key)) {
     seen.add(key);
@@ -112,11 +108,21 @@ function pushUnique(
 
 function normalizeOperator(operator: string): ">=" | "<=" | ">" | "<" | "==" {
   const normalized = operator.trim().toLowerCase();
-  if (normalized === ">=" || normalized === "=>" || normalized === "at least" || normalized === "greater than or equal to") {
+  if (
+    normalized === ">=" ||
+    normalized === "=>" ||
+    normalized === "at least" ||
+    normalized === "greater than or equal to"
+  ) {
     return ">=";
   }
 
-  if (normalized === "<=" || normalized === "=<" || normalized === "at most" || normalized === "less than or equal to") {
+  if (
+    normalized === "<=" ||
+    normalized === "=<" ||
+    normalized === "at most" ||
+    normalized === "less than or equal to"
+  ) {
     return "<=";
   }
 
@@ -193,11 +199,7 @@ function extractComorbidities(segment: string): PayerRuleCriterion[] {
   const normalized = segment.toLowerCase();
   const conditions = knownComorbidities.filter((condition) => normalized.includes(condition));
 
-  if (
-    conditions.length === 0 &&
-    !normalized.includes("co-morbid") &&
-    !normalized.includes("comorbid")
-  ) {
+  if (conditions.length === 0 && !normalized.includes("co-morbid") && !normalized.includes("comorbid")) {
     return [];
   }
 
@@ -233,6 +235,29 @@ function extractDocumentationRequirements(segment: string): PayerRuleCriterion[]
   ];
 }
 
+const icd10Pattern = /\b([A-Z]\d{2}(?:\.\d{1,4}[A-Z]?)?)\b/g;
+
+export function extractDiagnosisRequirements(segment: string): PayerRuleCriterion[] {
+  const codes = new Set<string>();
+
+  for (const match of segment.matchAll(icd10Pattern)) {
+    if (match[1]) {
+      codes.add(match[1]);
+    }
+  }
+
+  if (codes.size === 0) {
+    return [];
+  }
+
+  return [
+    {
+      type: "diagnosis_required",
+      icd10Codes: [...codes].sort()
+    }
+  ];
+}
+
 function shouldKeepAsNarrative(segment: string): boolean {
   if (segment.length < 30) {
     return false;
@@ -256,7 +281,8 @@ export function extractCriteriaFromNarrative(...htmlBlocks: Array<string | undef
         ...extractThresholds(segment),
         ...extractFailedTreatment(segment),
         ...extractComorbidities(segment),
-        ...extractDocumentationRequirements(segment)
+        ...extractDocumentationRequirements(segment),
+        ...extractDiagnosisRequirements(segment)
       ];
 
       if (extracted.length > 0) {
@@ -283,7 +309,10 @@ export function extractCriteriaFromCmsTexts(texts: string[]): PayerRuleCriterion
 }
 
 export function inferProcedureCodesFromCmsTexts(texts: string[]): InferredProcedureCode[] {
-  const text = texts.flatMap((segment) => htmlToSegments(segment)).map(normalizeNarrativeText).join("\n");
+  const text = texts
+    .flatMap((segment) => htmlToSegments(segment))
+    .map(normalizeNarrativeText)
+    .join("\n");
   const codes: InferredProcedureCode[] = [];
   const seen = new Set<string>();
 

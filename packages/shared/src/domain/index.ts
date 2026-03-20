@@ -3,6 +3,7 @@ import { z } from "zod";
 const isoDatetimeSchema = z.string().datetime({ offset: true });
 const simpleIdentifierSchema = z.string().min(1).max(128);
 const codeSchema = z.string().trim().min(1).max(32);
+const icd10CodeSchema = codeSchema.regex(/^[A-Z]\d{2}(?:\.\d{1,4}[A-Z]?)?$/i, "Invalid ICD-10-CM code format");
 
 export const clinicalNoteSchema = z
   .object({
@@ -15,7 +16,7 @@ export const clinicalNoteSchema = z
 
 export const problemSchema = z
   .object({
-    code: codeSchema,
+    code: icd10CodeSchema,
     description: z.string().min(1),
     status: z.string().min(1).optional()
   })
@@ -184,6 +185,33 @@ export const predictionResultSchema = z
   })
   .strict();
 
+export const paRequirementSchema = z
+  .object({
+    cptCode: z.string(),
+    payer: z.string(),
+    requiresPriorAuth: z.boolean(),
+    effectiveDate: z.string(),
+    sourceUrl: z.string(),
+    notes: z.string().optional()
+  })
+  .strict();
+
+export const payerTransparencyMetricsSchema = z
+  .object({
+    payer: z.string(),
+    reportingPeriod: z.string(),
+    serviceCategory: z.string().optional(),
+    totalRequests: z.number().int().optional(),
+    approvalRate: z.number().min(0).max(1),
+    denialRate: z.number().min(0).max(1),
+    appealApprovalRate: z.number().min(0).max(1).optional(),
+    avgTurnaroundDays: z.number().optional(),
+    medianTurnaroundDays: z.number().optional(),
+    sourceUrl: z.string(),
+    lastUpdated: z.string()
+  })
+  .strict();
+
 export type AssessmentPlan = z.infer<typeof assessmentPlanSchema>;
 export type CdaDocument = z.infer<typeof cdaDocumentSchema>;
 export type ClinicalEvidenceItem = z.infer<typeof clinicalEvidenceItemSchema>;
@@ -191,8 +219,10 @@ export type ClinicalNote = z.infer<typeof clinicalNoteSchema>;
 export type InsuranceProvider = z.infer<typeof insuranceProviderSchema>;
 export type Medication = z.infer<typeof medicationSchema>;
 export type MissingCriteriaItem = z.infer<typeof missingCriteriaItemSchema>;
+export type PaRequirement = z.infer<typeof paRequirementSchema>;
 export type PayerRule = z.infer<typeof payerRuleSchema>;
 export type PayerRuleCriterion = z.infer<typeof payerRuleCriterionSchema>;
+export type PayerTransparencyMetrics = z.infer<typeof payerTransparencyMetricsSchema>;
 export type PredictionResult = z.infer<typeof predictionResultSchema>;
 export type Problem = z.infer<typeof problemSchema>;
 export type Procedure = z.infer<typeof procedureSchema>;

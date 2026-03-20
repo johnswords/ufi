@@ -1,18 +1,13 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-
 import { CmsCoverageClient } from "../src/client.js";
 import { PayerRulesRepository } from "../src/repository.js";
 import { syncCmsCoverageRules } from "../src/sync.js";
 import type { CmsFetchLike } from "../src/types.js";
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const fixtureDirectory = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "fixtures",
-  "cms"
-);
+const fixtureDirectory = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "cms");
 
 function loadFixture(name: string): string {
   return readFileSync(path.join(fixtureDirectory, name), "utf8");
@@ -127,5 +122,54 @@ describe("syncCmsCoverageRules", () => {
     expect(secondRunRequests).toContain("/v1/reports/national-coverage-ncd/?page_size=2");
     expect(secondRunRequests).not.toContain("/v1/data/lcd/?lcdid=33411&ver=29");
     expect(secondRunRequests).not.toContain("/v1/data/ncd/?ncdid=57&ncdver=5");
+  });
+
+  it("second sync run skips already-synced documents and fetches fewer detail endpoints", async () => {
+    const requestLog: string[] = [];
+    const repository = new PayerRulesRepository();
+    const client = new CmsCoverageClient({
+      fetchImplementation: createFixtureFetch(requestLog),
+      now: () => new Date("2026-03-19T15:00:00.000Z")
+    });
+
+    await syncCmsCoverageRules({
+      client,
+      repository,
+      pageSize: 2,
+      now: () => new Date("2026-03-19T15:00:00.000Z")
+    });
+
+    const firstRunRequests = [...requestLog];
+    const firstRunDetailCalls = firstRunRequests.filter(
+      (url) => url.startsWith("/v1/data/lcd/?") || url.startsWith("/v1/data/ncd/?")
+    );
+    expect(firstRunDetailCalls.length).toBeGreaterThan(0);
+
+    requestLog.length = 0;
+
+    await syncCmsCoverageRules({
+      client,
+      repository,
+      pageSize: 2,
+      now: () => new Date("2026-03-19T16:00:00.000Z")
+    });
+
+    const secondRunDetailCalls = requestLog.filter(
+      (url) => url.startsWith("/v1/data/lcd/?") || url.startsWith("/v1/data/ncd/?")
+    );
+
+    expect(secondRunDetailCalls).toHaveLength(0);
+
+    expect(requestLog.length).toBeLessThan(firstRunRequests.length);
+
+    const secondRunListingCalls = requestLog.filter(
+      (url) =>
+        url.startsWith("/v1/reports/local-coverage-final-lcds/") || url.startsWith("/v1/reports/national-coverage-ncd/")
+    );
+    expect(secondRunListingCalls.length).toBeGreaterThan(0);
+
+    for (const detailUrl of firstRunDetailCalls) {
+      expect(requestLog).not.toContain(detailUrl);
+    }
   });
 });

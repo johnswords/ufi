@@ -1,8 +1,6 @@
 import type { PayerRule, StructuredCriteria } from "../domain/index.js";
 
-export function createStructuredCriteriaFixture(
-  overrides: Partial<StructuredCriteria> = {}
-): StructuredCriteria {
+export function createStructuredCriteriaFixture(overrides: Partial<StructuredCriteria> = {}): StructuredCriteria {
   return {
     cptCode: "27447",
     icdCodes: ["M17.11"],
