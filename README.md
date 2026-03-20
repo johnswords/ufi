@@ -98,13 +98,14 @@ pnpm lint:fix               # auto-fix lint issues
 pnpm typecheck              # typescript strict mode
 ```
 
-### Live CMS Sync
-
-Fetch real coverage data from the CMS Coverage API (takes ~5 minutes):
+### Seed Payer Data
 
 ```bash
-npx tsx packages/payer-rules/scripts/live-sync.ts
+pnpm seed                   # commercial rules + CMS Medicare sync (~5 min)
+pnpm seed:quick             # commercial rules only (skip CMS API, instant)
 ```
+
+The web demo auto-seeds commercial rules, PA requirements, and transparency metrics on startup. The full CMS sync adds 7,500+ Medicare coverage rules from `api.coverage.cms.gov`.
 
 ### Specs
 

@@ -12,6 +12,8 @@
     "setup": "./scripts/setup.sh",
     "start": "./scripts/start.sh",
     "stop": "./scripts/stop.sh",
+    "seed": "./scripts/seed.sh",
+    "seed:quick": "SKIP_CMS=true ./scripts/seed.sh",
     "demo": "./scripts/start.sh",
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
