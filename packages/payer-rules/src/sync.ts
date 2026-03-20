@@ -1,9 +1,8 @@
 import { payerRuleSchema, type PayerRule } from "@ufi/shared";
 
-import { extractCriteriaFromNarrative } from "./extractor.js";
+import { extractCriteriaFromNarrative, inferProcedureCodesFromCmsTexts } from "./extractor.js";
 import { htmlToPlainText } from "./text.js";
 import type {
-  CmsArticleHcpcRow,
   CmsCoverageSyncOptions,
   CmsCoverageSyncResult,
   CmsLcdDetailRow,
@@ -11,69 +10,6 @@ import type {
   CmsNcdDetailRow,
   CmsNcdReportRow
 } from "./types.js";
-
-interface InferredCode {
-  readonly cptCode: string;
-  readonly cptDescription: string;
-}
-
-const inferredNcdProcedureCodes: Array<{ pattern: RegExp; codes: InferredCode[] }> = [
-  {
-    pattern: /roux-en-y gastric bypass|rygbp/iu,
-    codes: [
-      {
-        cptCode: "43644",
-        cptDescription:
-          "Laparoscopy, surgical, gastric restrictive procedure; with gastric bypass and Roux-en-Y gastroenterostomy"
-      },
-      {
-        cptCode: "43645",
-        cptDescription:
-          "Laparoscopy, surgical, gastric restrictive procedure; with gastric bypass and small intestine reconstruction"
-      },
-      {
-        cptCode: "43846",
-        cptDescription:
-          "Gastric restrictive procedure, with gastric bypass for morbid obesity; with short limb Roux-en-Y gastroenterostomy"
-      },
-      {
-        cptCode: "43847",
-        cptDescription:
-          "Gastric restrictive procedure, with gastric bypass for morbid obesity; with small intestine reconstruction"
-      }
-    ]
-  },
-  {
-    pattern: /adjustable gastric banding|lagb|agb/iu,
-    codes: [
-      {
-        cptCode: "43770",
-        cptDescription:
-          "Laparoscopy, surgical, gastric restrictive procedure; placement of adjustable gastric restrictive device"
-      }
-    ]
-  },
-  {
-    pattern: /sleeve gastrectomy|lsg/iu,
-    codes: [
-      {
-        cptCode: "43775",
-        cptDescription:
-          "Laparoscopy, surgical, gastric restrictive procedure; longitudinal gastrectomy (sleeve gastrectomy)"
-      }
-    ]
-  },
-  {
-    pattern: /biliopancreatic diversion with duodenal switch|bpd\/ds|bpd\/grds/iu,
-    codes: [
-      {
-        cptCode: "43845",
-        cptDescription:
-          "Gastric restrictive procedure with partial gastrectomy, pylorus-preserving duodenoileostomy and ileoileostomy"
-      }
-    ]
-  }
-];
 
 function normalizeExpirationDate(value: string): string | undefined {
   const trimmed = value.trim();
@@ -90,7 +26,7 @@ function normalizeCmsSourceUrl(baseUrl: string): string {
   }
 
   if (baseUrl.startsWith("/data/")) {
-    return `https://api.coverage.cms.gov/v1${baseUrl}`;
+    return `https://api.coverage.cms.gov${baseUrl}`;
   }
 
   return `https://api.coverage.cms.gov${baseUrl}`;
@@ -99,7 +35,7 @@ function normalizeCmsSourceUrl(baseUrl: string): string {
 function toLcdRules(
   listing: CmsLcdReportRow,
   detail: CmsLcdDetailRow,
-  articleCodes: CmsArticleHcpcRow[],
+  articleCodes: Array<{ hcpc_code_id: string; long_description: string; short_description: string }>,
   syncedAt: string
 ): PayerRule[] {
   const criteria = extractCriteriaFromNarrative(
@@ -118,6 +54,7 @@ function toLcdRules(
       cptCode: articleCode.hcpc_code_id,
       cptDescription: articleCode.long_description || articleCode.short_description,
       payer: "CMS Medicare",
+      payerPlanCategory: listing.contractor_name_type,
       title: listing.title,
       criteria,
       effectiveDate: listing.effective_date || detail.rev_eff_date || detail.orig_det_eff_date,
@@ -128,34 +65,15 @@ function toLcdRules(
   );
 }
 
-function inferNcdCodes(detail: CmsNcdDetailRow): InferredCode[] {
-  const text = htmlToPlainText(`${detail.item_service_description}\n${detail.indications_limitations}`);
-  const codes: InferredCode[] = [];
-  const seen = new Set<string>();
-
-  for (const mapping of inferredNcdProcedureCodes) {
-    if (!mapping.pattern.test(text)) {
-      continue;
-    }
-
-    for (const code of mapping.codes) {
-      if (!seen.has(code.cptCode)) {
-        seen.add(code.cptCode);
-        codes.push(code);
-      }
-    }
-  }
-
-  return codes;
-}
-
 function toNcdRules(listing: CmsNcdReportRow, detail: CmsNcdDetailRow, syncedAt: string): PayerRule[] {
   const criteria = extractCriteriaFromNarrative(
     detail.indications_limitations,
     detail.item_service_description,
     detail.revision_history
   );
-  const codes = inferNcdCodes(detail);
+  const codes = inferProcedureCodesFromCmsTexts([
+    htmlToPlainText(`${detail.item_service_description}\n${detail.indications_limitations}`)
+  ]);
 
   return codes.map((code) =>
     payerRuleSchema.parse({
@@ -166,6 +84,7 @@ function toNcdRules(listing: CmsNcdReportRow, detail: CmsNcdDetailRow, syncedAt:
       cptCode: code.cptCode,
       cptDescription: code.cptDescription,
       payer: "CMS Medicare",
+      payerPlanCategory: "National Coverage Determination",
       title: detail.title,
       criteria,
       effectiveDate: detail.effective_date,
