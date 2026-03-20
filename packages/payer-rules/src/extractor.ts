@@ -30,7 +30,6 @@ const knownComorbidities = [
 ];
 
 const boilerplateFragments = [
-  "please refer to",
   "internet only manual",
   "social security act",
   "this lcd supplements",
