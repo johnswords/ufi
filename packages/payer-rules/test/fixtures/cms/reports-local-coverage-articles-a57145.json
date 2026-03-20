@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "status": {
+      "id": 200,
+      "message": "OK"
+    },
+    "notes": "",
+    "fields": [
+      "document_id",
+      "document_version",
+      "document_display_id",
+      "document_type",
+      "note",
+      "title",
+      "contractor_name_type",
+      "updated_on",
+      "updated_on_sort",
+      "effective_date",
+      "retirement_date",
+      "url"
+    ],
+    "children": [],
+    "next_token": ""
+  },
+  "data": [
+    {
+      "document_id": 57145,
+      "document_version": 32,
+      "document_display_id": "A57145",
+      "document_type": "Article",
+      "note": "",
+      "title": "Billing and Coding: Surgical Management of Morbid Obesity",
+      "contractor_name_type": "First Coast Service Options, Inc.\r\n(MAC - Part A, MAC - Part B)",
+      "updated_on": "01/23/2026",
+      "updated_on_sort": "20260123091652",
+      "effective_date": "01/01/2026",
+      "retirement_date": "N/A",
+      "url": "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=57145&ver=32"
+    }
+  ]
+}

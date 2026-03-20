@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "status": {
+      "id": 200,
+      "message": "OK"
+    },
+    "notes": " Your parameters returned 0 results, so the data array is empty.",
+    "fields": [
+      "lcd_id",
+      "lcd_version",
+      "hcpc_code_id",
+      "hcpc_code_version",
+      "hcpc_code_group",
+      "long_description",
+      "short_description",
+      "range",
+      "last_updated"
+    ],
+    "children": [],
+    "next_token": ""
+  },
+  "data": []
+}

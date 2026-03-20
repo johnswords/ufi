@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "status": {
+      "id": 200,
+      "message": "OK"
+    },
+    "notes": "",
+    "fields": [
+      "article_id",
+      "article_version",
+      "hcpc_code_id",
+      "hcpc_code_version",
+      "hcpc_code_group",
+      "long_description",
+      "short_description",
+      "range",
+      "last_updated"
+    ],
+    "children": [],
+    "next_token": ""
+  },
+  "data": [
+    {
+      "article_id": 57145,
+      "article_version": 32,
+      "hcpc_code_id": "43644",
+      "hcpc_code_version": 100,
+      "hcpc_code_group": 1,
+      "long_description": "LAPAROSCOPY, SURGICAL, GASTRIC RESTRICTIVE PROCEDURE; WITH GASTRIC BYPASS AND ROUX-EN-Y GASTROENTEROSTOMY (ROUX LIMB 150 CM OR LESS)",
+      "short_description": "Lap gastric bypass&sol;roux-en-y",
+      "range": "N",
+      "last_updated": "01/23/2026"
+    },
+    {
+      "article_id": 57145,
+      "article_version": 32,
+      "hcpc_code_id": "43645",
+      "hcpc_code_version": 100,
+      "hcpc_code_group": 1,
+      "long_description": "LAPAROSCOPY, SURGICAL, GASTRIC RESTRICTIVE PROCEDURE; WITH GASTRIC BYPASS AND SMALL INTESTINE RECONSTRUCTION TO LIMIT ABSORPTION",
+      "short_description": "Lap gastr bypass incl smll i",
+      "range": "N",
+      "last_updated": "01/23/2026"
+    },
+    {
+      "article_id": 57145,
+      "article_version": 32,
+      "hcpc_code_id": "43770",
+      "hcpc_code_version": 100,
+      "hcpc_code_group": 1,
+      "long_description": "LAPAROSCOPY, SURGICAL, GASTRIC RESTRICTIVE PROCEDURE; PLACEMENT OF ADJUSTABLE GASTRIC RESTRICTIVE DEVICE (EG, GASTRIC BAND AND SUBCUTANEOUS PORT COMPONENTS)",
+      "short_description": "Lap place gastr adj device",
+      "range": "N",
+      "last_updated": "01/23/2026"
+    },
+    {
+      "article_id": 57145,
+      "article_version": 32,
+      "hcpc_code_id": "43775",
+      "hcpc_code_version": 100,
+      "hcpc_code_group": 1,
+      "long_description": "LAPAROSCOPY, SURGICAL, GASTRIC RESTRICTIVE PROCEDURE; LONGITUDINAL GASTRECTOMY (IE, SLEEVE GASTRECTOMY)",
+      "short_description": "Lap sleeve gastrectomy",
+      "range": "N",
+      "last_updated": "01/23/2026"
+    },
+    {
+      "article_id": 57145,
+      "article_version": 32,
+      "hcpc_code_id": "43845",
+      "hcpc_code_version": 100,
+      "hcpc_code_group": 1,
+      "long_description": "GASTRIC RESTRICTIVE PROCEDURE WITH PARTIAL GASTRECTOMY, PYLORUS-PRESERVING DUODENOILEOSTOMY AND ILEOILEOSTOMY (50 TO 100 CM COMMON CHANNEL) TO LIMIT ABSORPTION (BILIOPANCREATIC DIVERSION WITH DUODENAL SWITCH)",
+      "short_description": "Gastroplasty duodenal switch",
+      "range": "N",
+      "last_updated": "01/23/2026"
+    },
+    {
+      "article_id": 57145,
+      "article_version": 32,
+      "hcpc_code_id": "43846",
+      "hcpc_code_version": 100,
+      "hcpc_code_group": 1,
+      "long_description": "GASTRIC RESTRICTIVE PROCEDURE, WITH GASTRIC BYPASS FOR MORBID OBESITY; WITH SHORT LIMB (150 CM OR LESS) ROUX-EN-Y GASTROENTEROSTOMY",
+      "short_description": "Gstr rstcv px shrt roux-en-y",
+      "range": "N",
+      "last_updated": "01/23/2026"
+    },
+    {
+      "article_id": 57145,
+      "article_version": 32,
+      "hcpc_code_id": "43847",
+      "hcpc_code_version": 100,
+      "hcpc_code_group": 1,
+      "long_description": "GASTRIC RESTRICTIVE PROCEDURE, WITH GASTRIC BYPASS FOR MORBID OBESITY; WITH SMALL INTESTINE RECONSTRUCTION TO LIMIT ABSORPTION",
+      "short_description": "Gstr rstcv px sm int rcnstj",
+      "range": "N",
+      "last_updated": "01/23/2026"
+    }
+  ]
+}

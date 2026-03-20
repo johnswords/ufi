@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "status": {
+      "id": 200,
+      "message": "OK"
+    },
+    "notes": "",
+    "fields": [
+      "document_id",
+      "document_version",
+      "document_display_id",
+      "document_type",
+      "note",
+      "title",
+      "contractor_name_type",
+      "updated_on",
+      "updated_on_sort",
+      "effective_date",
+      "retirement_date",
+      "url"
+    ],
+    "children": [],
+    "next_token": ""
+  },
+  "data": [
+    {
+      "document_id": 54799,
+      "document_version": 65,
+      "document_display_id": "A54799",
+      "document_type": "Article",
+      "note": "Future",
+      "title": "Billing and Coding: Urine Drug Testing",
+      "contractor_name_type": "Palmetto GBA\r\n(MAC - Part A, MAC - Part B)",
+      "updated_on": "03/13/2026",
+      "updated_on_sort": "20260313092311",
+      "effective_date": "04/15/2026",
+      "retirement_date": "N/A",
+      "url": "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=54799&ver=65"
+    },
+    {
+      "document_id": 58828,
+      "document_version": 15,
+      "document_display_id": "A58828",
+      "document_type": "Article",
+      "note": "Future",
+      "title": "Billing and Coding: Treatment of Males with Low Testosterone",
+      "contractor_name_type": "Palmetto GBA\r\n(MAC - Part A, MAC - Part B)",
+      "updated_on": "03/13/2026",
+      "updated_on_sort": "20260313092231",
+      "effective_date": "04/02/2026",
+      "retirement_date": "N/A",
+      "url": "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=58828&ver=15"
+    },
+    {
+      "document_id": 52725,
+      "document_version": 38,
+      "document_display_id": "A52725",
+      "document_type": "Article",
+      "note": "Retired",
+      "title": "Billing and Coding: Nerve Blockade for Treatment of Chronic Pain and Neuropathy",
+      "contractor_name_type": "Noridian Healthcare Solutions, LLC\r\n(MAC - Part A, MAC - Part B)",
+      "updated_on": "03/12/2026",
+      "updated_on_sort": "20260312070529",
+      "effective_date": "10/01/2025",
+      "retirement_date": "03/05/2026",
+      "url": "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52725&ver=38"
+    }
+  ]
+}

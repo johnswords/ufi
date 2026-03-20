@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "status": {
+      "id": 200,
+      "message": "OK"
+    },
+    "notes": "",
+    "fields": [
+      "document_id",
+      "document_version",
+      "document_display_id",
+      "last_updated",
+      "last_updated_sort",
+      "document_type",
+      "title",
+      "chapter",
+      "is_lab",
+      "url"
+    ],
+    "children": [],
+    "next_token": ""
+  },
+  "data": [
+    {
+      "document_id": 57,
+      "document_version": 5,
+      "document_display_id": "100.1",
+      "last_updated": "04/09/2025",
+      "last_updated_sort": "20250409101001",
+      "document_type": "NCD",
+      "title": "Bariatric Surgery for Treatment of Co-Morbid Conditions Related to Morbid Obesity",
+      "chapter": "100",
+      "is_lab": 0,
+      "url": "/data/ncd?ncdid=57&ncdver=5"
+    }
+  ]
+}

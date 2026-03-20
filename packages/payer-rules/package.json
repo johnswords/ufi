@@ -1,0 +1,20 @@
+{
+  "name": "@ufi/payer-rules",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf coverage dist"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.3.14",
+    "@ufi/shared": "workspace:*",
+    "drizzle-orm": "^0.44.7"
+  }
+}

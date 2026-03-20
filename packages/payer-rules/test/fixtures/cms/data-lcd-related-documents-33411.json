@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "status": {
+      "id": 200,
+      "message": "OK"
+    },
+    "notes": "",
+    "fields": [
+      "lcd_id",
+      "lcd_version",
+      "related_num",
+      "r_article_id",
+      "r_article_version",
+      "r_lcd_id",
+      "r_lcd_version",
+      "r_contractor_id",
+      "last_updated",
+      "url"
+    ],
+    "children": [],
+    "next_token": ""
+  },
+  "data": [
+    {
+      "lcd_id": 33411,
+      "lcd_version": 29,
+      "related_num": 1,
+      "r_article_id": 57145,
+      "r_article_version": 32,
+      "r_lcd_id": null,
+      "r_lcd_version": null,
+      "r_contractor_id": 368,
+      "last_updated": "10/02/2019",
+      "url": "/data/article?articleid=57145&ver=32"
+    }
+  ]
+}
