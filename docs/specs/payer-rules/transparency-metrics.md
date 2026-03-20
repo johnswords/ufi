@@ -63,13 +63,19 @@ interface PayerTransparencyMetrics {
 
 ### Integration Points
 
-1. **New table**: `payer_transparency_metrics` in PayerRulesRepository
-2. **Prediction calibration**: Adjust confidence based on historical approval rates
+1. **New table**: `payer_transparency_metrics` in PayerRulesRepository — DONE
+2. **Prediction calibration**: Adjust confidence based on historical approval rates — DONE
    - If payer approves 95% of TKR PAs, high base confidence
    - If payer denies 35% of lumbar fusion PAs, lower base confidence, flag risk
-3. **Web demo context**: Show approval rate context in results panel
+3. **Web demo context**: Show approval rate context in results panel — DONE
    - "Cigna approves 82% of total knee replacement prior auth requests (2025 data)"
-4. **New API endpoint**: `GET /api/metrics/:payer` — returns transparency metrics
+4. **New API endpoint**: `GET /api/metrics/:payer` — returns transparency metrics — DONE
+5. **Analysis output enrichment**: Include transparency context in every prediction response:
+   - Payer's overall approval/denial rates for the service category
+   - Appeal success rate (signals whether a denial is worth appealing)
+   - Average turnaround time (sets expectation for the practice)
+   - Comparison to industry average ("This payer denies 22% of ortho PAs vs. industry average of 15%")
+   - Historical trend if multiple reporting periods available
 
 ### Prediction Confidence Adjustment
 

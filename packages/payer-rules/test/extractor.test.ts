@@ -12,7 +12,7 @@ import {
 
 const fixtureDirectory = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "cms");
 
-function loadJson(name: string): any {
+function loadJson(name: string): unknown {
   return JSON.parse(readFileSync(path.join(fixtureDirectory, name), "utf8"));
 }
 

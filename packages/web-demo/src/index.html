@@ -4,178 +4,326 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UFI MedEnt — Surgical Approval Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --color-bg: #f8f9fa;
-      --color-surface: #ffffff;
-      --color-border: #dee2e6;
-      --color-text: #212529;
-      --color-text-muted: #6c757d;
-      --color-primary: #2563eb;
-      --color-primary-hover: #1d4ed8;
-      --color-approved: #059669;
-      --color-approved-bg: #d1fae5;
-      --color-denied: #dc2626;
-      --color-denied-bg: #fee2e2;
-      --color-needs-docs: #d97706;
-      --color-needs-docs-bg: #fef3c7;
-      --color-warning-bg: #fefce8;
-      --color-warning-border: #facc15;
-      --radius: 8px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-      --shadow-lg: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+      --color-bg: #0f172a;
+      --color-bg-raised: #1e293b;
+      --color-surface: rgba(30, 41, 59, 0.7);
+      --color-surface-solid: #1e293b;
+      --color-border: rgba(148, 163, 184, 0.15);
+      --color-border-focus: #06b6d4;
+      --color-text: #f1f5f9;
+      --color-text-muted: #94a3b8;
+      --color-text-dim: #64748b;
+      --color-primary: #06b6d4;
+      --color-primary-hover: #22d3ee;
+      --color-approved: #10b981;
+      --color-approved-bg: rgba(16, 185, 129, 0.12);
+      --color-approved-glow: rgba(16, 185, 129, 0.25);
+      --color-denied: #ef4444;
+      --color-denied-bg: rgba(239, 68, 68, 0.12);
+      --color-denied-glow: rgba(239, 68, 68, 0.25);
+      --color-needs-docs: #f59e0b;
+      --color-needs-docs-bg: rgba(245, 158, 11, 0.12);
+      --color-needs-docs-glow: rgba(245, 158, 11, 0.25);
+      --color-warning: #f59e0b;
+      --color-warning-bg: rgba(245, 158, 11, 0.08);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,0.4);
+      --glass-blur: blur(16px);
+      --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Cascadia Code", monospace;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background: var(--color-bg);
       color: var(--color-text);
       line-height: 1.6;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Focus rings */
+    *:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
     }
 
     .container {
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto;
-      padding: 24px 16px;
+      padding: 32px 20px;
     }
 
+    /* Header */
     header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--color-border);
+      position: relative;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
     }
 
     header h1 {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--color-text);
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
     }
 
     header h1 span {
-      color: var(--color-primary);
+      background: linear-gradient(135deg, var(--color-primary), #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     header p {
       color: var(--color-text-muted);
-      font-size: 0.95rem;
-      margin-top: 4px;
+      font-size: 0.9rem;
+      margin-top: 6px;
+      font-weight: 400;
     }
 
+    /* PHI Disclaimer */
     .phi-disclaimer {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
       background: var(--color-warning-bg);
-      border: 1px solid var(--color-warning-border);
-      border-radius: var(--radius);
+      border-left: 3px solid var(--color-warning);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
       padding: 12px 16px;
-      margin-bottom: 20px;
-      font-size: 0.875rem;
+      margin-bottom: 24px;
+      font-size: 0.8125rem;
       line-height: 1.5;
-      color: #713f12;
+      color: var(--color-text-muted);
     }
 
-    .phi-disclaimer > strong:first-child { display: block; margin-bottom: 2px; }
+    .phi-disclaimer strong {
+      color: var(--color-warning);
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
+    .phi-dismiss {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      color: var(--color-text-dim);
+      cursor: pointer;
+      font-size: 1.125rem;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.15s;
+    }
+
+    .phi-dismiss:hover { color: var(--color-text-muted); }
+
+    /* Cards */
     .card {
       background: var(--color-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--color-border);
       border-radius: var(--radius);
-      padding: 24px;
+      padding: 28px;
       box-shadow: var(--shadow);
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
+    /* Labels */
     label {
       display: block;
-      font-weight: 600;
-      font-size: 0.875rem;
-      margin-bottom: 6px;
-      color: var(--color-text);
+      font-weight: 500;
+      font-size: 0.8125rem;
+      margin-bottom: 8px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
+    /* Form controls */
     select, textarea {
       width: 100%;
       border: 1px solid var(--color-border);
-      border-radius: 6px;
-      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
       font-size: 0.9375rem;
       font-family: inherit;
-      background: var(--color-surface);
+      background: var(--color-bg);
       color: var(--color-text);
-      transition: border-color 0.15s;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 6.146a.5.5 0 0 1 .708 0L8 8.793l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    select option {
+      background: var(--color-bg);
+      color: var(--color-text);
     }
 
     select:focus, textarea:focus {
       outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      border-color: var(--color-border-focus);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
     }
 
     textarea {
       resize: vertical;
-      min-height: 220px;
-      font-family: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", monospace;
+      min-height: 300px;
+      font-family: var(--font-mono);
       font-size: 0.8125rem;
-      line-height: 1.6;
+      line-height: 1.7;
+      border-left: 3px solid var(--color-border);
+      padding-left: 18px;
+    }
+
+    textarea:focus {
+      border-left-color: var(--color-primary);
     }
 
     .field-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
-      margin-top: 16px;
+      margin-top: 20px;
     }
 
-    .field-group { margin-top: 16px; }
+    .field-group { margin-top: 20px; }
     .field-group:first-child { margin-top: 0; }
 
-    .sample-row {
-      margin-bottom: 16px;
+    /* Sample pills */
+    .sample-section {
+      margin-bottom: 20px;
     }
+
+    .sample-pills {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .sample-pills.loaded { display: flex; }
+
+    .sample-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      color: var(--color-text-muted);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 44px;
+      user-select: none;
+    }
+
+    .sample-pill:hover {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background: rgba(6, 182, 212, 0.06);
+    }
+
+    .sample-pill.active {
+      border-color: var(--color-primary);
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--color-primary);
+    }
+
+    .sample-loading {
+      font-size: 0.8125rem;
+      color: var(--color-text-dim);
+      margin-top: 8px;
+    }
+
+    /* Hidden select for samples (keeps JS logic intact) */
+    #sample-select { display: none; }
 
     .char-count {
       text-align: right;
-      font-size: 0.75rem;
-      color: var(--color-text-muted);
-      margin-top: 4px;
+      font-size: 0.6875rem;
+      color: var(--color-text-dim);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
     }
 
+    /* Button */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 12px 28px;
+      padding: 14px 28px;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
+      transition: all 0.2s;
       width: 100%;
-      margin-top: 20px;
+      margin-top: 24px;
+      font-family: inherit;
+      min-height: 52px;
     }
 
     .btn-primary {
-      background: var(--color-primary);
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
       color: white;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.25);
     }
 
     .btn-primary:hover:not(:disabled) {
-      background: var(--color-primary-hover);
+      box-shadow: 0 4px 24px rgba(6, 182, 212, 0.4);
+      transform: translateY(-1px);
     }
 
     .btn-primary:active:not(:disabled) {
-      transform: scale(0.98);
+      transform: translateY(0) scale(0.99);
+      box-shadow: 0 2px 8px rgba(6, 182, 212, 0.2);
     }
 
     .btn:disabled {
-      opacity: 0.6;
+      opacity: 0.4;
       cursor: not-allowed;
     }
 
-    /* Loading spinner */
+    /* Loading spinner in button */
     .spinner {
       display: none;
       width: 18px;
@@ -195,63 +343,105 @@
 
     /* Results */
     #results { display: none; }
-    #results.visible { display: block; }
+    #results.visible { display: block; animation: fadeIn 0.4s ease; }
 
-    .verdict-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 1.125rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .verdict-approved {
-      background: var(--color-approved-bg);
-      color: var(--color-approved);
-    }
-
-    .verdict-denied {
-      background: var(--color-denied-bg);
-      color: var(--color-denied);
-    }
-
-    .verdict-needs-documentation {
-      background: var(--color-needs-docs-bg);
-      color: var(--color-needs-docs);
-    }
-
+    /* Verdict badge */
     .verdict-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 20px;
+      gap: 16px;
+      margin-bottom: 24px;
     }
 
+    .verdict-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-size: 1.125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      animation: verdictSlide 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes verdictSlide {
+      from { opacity: 0; transform: translateX(-20px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    .verdict-approved {
+      background: var(--color-approved-bg);
+      color: var(--color-approved);
+      box-shadow: 0 0 24px var(--color-approved-glow);
+    }
+
+    .verdict-denied {
+      background: var(--color-denied-bg);
+      color: var(--color-denied);
+      box-shadow: 0 0 24px var(--color-denied-glow);
+    }
+
+    .verdict-needs-documentation {
+      background: var(--color-needs-docs-bg);
+      color: var(--color-needs-docs);
+      box-shadow: 0 0 24px var(--color-needs-docs-glow);
+    }
+
+    /* Confidence meter */
     .confidence {
-      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .confidence-label {
+      font-size: 0.8125rem;
       color: var(--color-text-muted);
+      font-weight: 500;
     }
 
     .confidence strong {
       font-size: 1.5rem;
-      color: var(--color-text);
+      font-variant-numeric: tabular-nums;
     }
 
+    .confidence-bar-track {
+      width: 120px;
+      height: 6px;
+      background: var(--color-border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .confidence-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--color-primary);
+      width: 0%;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Result sections */
     .result-section {
-      margin-top: 20px;
+      margin-top: 24px;
     }
 
     .result-section h3 {
-      font-size: 0.9375rem;
+      font-size: 0.8125rem;
       font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--color-text);
+      margin-bottom: 12px;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .result-section ul {
@@ -260,46 +450,61 @@
     }
 
     .result-section li {
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 10px 14px;
       font-size: 0.875rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      border-radius: var(--radius-sm);
+      margin-bottom: 6px;
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid var(--color-border);
     }
 
-    .result-section li:last-child { border-bottom: none; }
+    /* Stagger animation for list items */
+    .result-section li {
+      animation: staggerIn 0.3s ease both;
+    }
+
+    @keyframes staggerIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     .criteria-icon {
       display: inline-block;
       width: 20px;
       text-align: center;
-      margin-right: 6px;
+      margin-right: 8px;
       flex-shrink: 0;
     }
 
-    .severity-required {
-      color: var(--color-denied);
-      font-weight: 600;
-    }
-
-    .severity-supporting {
-      color: var(--color-needs-docs);
-    }
-
+    /* Missing documentation items */
     .missing-item {
       display: flex;
       align-items: flex-start;
-      gap: 4px;
+      gap: 6px;
+    }
+
+    .missing-item.severity-required-item {
+      border-left: 3px solid var(--color-denied);
+      padding-left: 12px;
+    }
+
+    .missing-item.severity-supporting-item {
+      border-left: 3px solid var(--color-needs-docs);
+      padding-left: 12px;
     }
 
     .missing-badge {
       display: inline-block;
-      font-size: 0.6875rem;
-      font-weight: 600;
+      font-size: 0.625rem;
+      font-weight: 700;
       text-transform: uppercase;
-      padding: 1px 6px;
-      border-radius: 3px;
-      margin-left: 8px;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 100px;
+      margin-left: auto;
       flex-shrink: 0;
+      white-space: nowrap;
     }
 
     .missing-badge.required {
@@ -312,34 +517,148 @@
       color: var(--color-needs-docs);
     }
 
+    .severity-required { color: var(--color-denied); font-weight: 600; }
+    .severity-supporting { color: var(--color-needs-docs); }
+
+    /* Payer context callout */
+    #payer-context-section {
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.15);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    #payer-context-section h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #payer-context-section h3::before {
+      content: "\2139\FE0F";
+      font-size: 0.875rem;
+    }
+
+    #payer-context-section li {
+      background: transparent;
+      border: none;
+      padding: 6px 0;
+    }
+
+    /* Rewrite section */
+    .rewrite-block {
+      position: relative;
+      margin-top: 10px;
+    }
+
+    #rewrite-content {
+      white-space: pre-wrap;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      line-height: 1.7;
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      padding-top: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      color: var(--color-text);
+    }
+
+    .rewrite-hint {
+      font-size: 0.8125rem;
+      color: var(--color-text-dim);
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    #copy-rewrite-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: auto;
+      margin: 0;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--color-bg-raised);
+      border: 1px solid var(--color-border);
+      color: var(--color-text-muted);
+      border-radius: 6px;
+      min-height: 36px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    #copy-rewrite-btn:hover {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    @keyframes copyPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    #copy-rewrite-btn.copied { animation: copyPulse 0.3s ease; }
+
+    #copy-confirmation {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--color-approved);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 6px;
+      pointer-events: none;
+      animation: toastFade 2s ease forwards;
+    }
+
+    @keyframes toastFade {
+      0% { opacity: 0; transform: translateY(4px); }
+      10% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Error banner */
     .error-banner {
       background: var(--color-denied-bg);
-      border: 1px solid var(--color-denied);
-      border-radius: var(--radius);
-      padding: 12px 16px;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
       color: var(--color-denied);
       font-size: 0.875rem;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: none;
     }
 
     .error-banner.visible { display: block; }
 
+    /* Stub notice */
     .stub-notice {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 6px;
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      border-radius: var(--radius-sm);
       padding: 10px 14px;
       font-size: 0.8125rem;
-      color: #1e40af;
+      color: var(--color-primary);
       margin-top: 16px;
     }
 
+    /* Footer */
     footer {
       text-align: center;
-      padding: 24px 0 12px;
-      color: var(--color-text-muted);
-      font-size: 0.8125rem;
+      padding: 32px 0 16px;
+      color: var(--color-text-dim);
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
     }
 
     /* Loading overlay */
@@ -347,8 +666,9 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       z-index: 1000;
       align-items: center;
       justify-content: center;
@@ -357,33 +677,50 @@
     .loading-overlay.visible { display: flex; }
 
     .loading-card {
-      background: var(--color-surface);
-      border-radius: 12px;
-      padding: 40px 48px;
+      background: var(--color-surface-solid);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      padding: 48px;
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: var(--shadow-lg);
       max-width: 420px;
       width: 90%;
     }
 
-    .loading-pulse {
-      width: 48px;
-      height: 48px;
-      border: 4px solid var(--color-border);
-      border-top-color: var(--color-primary);
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .loading-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--color-primary);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 20px;
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotPulse {
+      0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1.1); }
     }
 
     .loading-card h3 {
-      font-size: 1.125rem;
+      font-size: 1rem;
+      font-weight: 600;
       margin-bottom: 8px;
+      color: var(--color-text);
+      letter-spacing: -0.01em;
     }
 
     .loading-card p {
-      color: var(--color-text-muted);
-      font-size: 0.875rem;
+      color: var(--color-text-dim);
+      font-size: 0.8125rem;
       line-height: 1.5;
     }
 
@@ -391,28 +728,50 @@
       font-weight: 600;
       color: var(--color-primary);
       font-size: 0.8125rem;
-      margin-top: 16px;
+      margin-top: 20px;
       min-height: 1.2em;
+      transition: opacity 0.3s ease;
     }
 
     #loading-timer {
-      font-size: 0.75rem;
-      color: var(--color-text-muted);
+      font-size: 0.6875rem;
+      color: var(--color-text-dim);
       margin-top: 8px;
+      font-variant-numeric: tabular-nums;
     }
 
-    @media (max-width: 600px) {
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container { padding: 20px 16px; }
+      header h1 { font-size: 1.25rem; }
+      .card { padding: 20px 16px; }
       .field-row { grid-template-columns: 1fr; }
-      .container { padding: 16px 12px; }
-      header h1 { font-size: 1.375rem; }
       .verdict-row { flex-direction: column; align-items: flex-start; }
+      .verdict-badge { font-size: 1rem; padding: 10px 20px; }
+      .confidence-bar-track { width: 80px; }
+      textarea { min-height: 240px; }
+      .sample-pill { padding: 8px 14px; font-size: 0.75rem; }
+      .loading-card { padding: 32px 24px; }
     }
+
+    /* Scrollbar styling for dark theme */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--color-text-dim); }
   </style>
 </head>
 <body>
   <div id="loading-overlay" class="loading-overlay">
     <div class="loading-card">
-      <div class="loading-pulse"></div>
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
       <h3>Analyzing Clinical Note</h3>
       <p>Running local AI extraction against payer coverage rules. This typically takes 30-90 seconds on CPU.</p>
       <div id="loading-step">Extracting clinical criteria...</div>
@@ -422,21 +781,26 @@
 
   <div class="container">
     <header>
-      <h1><span>UFI MedEnt</span> — Surgical Approval Predictor</h1>
+      <h1><span>UFI MedEnt</span> &mdash; Surgical Approval Predictor</h1>
       <p>Paste physician notes, select a procedure and carrier, and predict prior authorization outcome.</p>
     </header>
 
-    <div class="phi-disclaimer">
-      <strong>&#9888;&#65039; PHI Notice</strong>
-      This demo processes text using a local AI model (Ollama). Notes are not stored or transmitted externally. However, <b>do not paste real patient information</b> unless this is running on your practice's local network.
+    <div class="phi-disclaimer" id="phi-disclaimer">
+      <div>
+        <strong>PHI Notice</strong>
+        This demo processes text using a local AI model (Ollama). Notes are not stored or transmitted externally. However, <b>do not paste real patient information</b> unless this is running on your practice's local network.
+      </div>
+      <button class="phi-dismiss" onclick="document.getElementById('phi-disclaimer').style.display='none'" aria-label="Dismiss notice">&times;</button>
     </div>
 
     <div class="card">
-      <div class="sample-row">
-        <label for="sample-select">Load a Sample Note</label>
+      <div class="sample-section">
+        <label>Load a Sample Note</label>
         <select id="sample-select">
           <option value="">— Select a sample —</option>
         </select>
+        <div class="sample-loading" id="sample-loading">Loading samples...</div>
+        <div class="sample-pills" id="sample-pills"></div>
       </div>
 
       <div class="field-group">
@@ -462,7 +826,7 @@
 
       <button id="predict-btn" class="btn btn-primary" disabled>
         <span class="spinner"></span>
-        <span class="btn-label">&#128269; Predict Approval</span>
+        <span class="btn-label">Predict Approval</span>
       </button>
     </div>
 
@@ -472,7 +836,13 @@
       <div class="verdict-row">
         <div id="verdict-badge" class="verdict-badge"></div>
         <div class="confidence">
-          Confidence: <strong id="confidence-value"></strong>
+          <div>
+            <span class="confidence-label">Confidence</span><br>
+            <strong id="confidence-value"></strong>
+          </div>
+          <div class="confidence-bar-track">
+            <div class="confidence-bar-fill" id="confidence-bar"></div>
+          </div>
         </div>
       </div>
 
@@ -493,14 +863,16 @@
 
       <div id="rewrite-section" class="result-section" style="display:none">
         <h3>Suggested Note Rewrite</h3>
-        <p style="font-size:0.8125rem;color:var(--color-text-muted);margin-bottom:10px">
+        <p class="rewrite-hint">
           This rewrite addresses the missing documentation. Fill in the [BRACKETED PLACEHOLDERS] with actual patient values.
         </p>
-        <div id="rewrite-content" style="white-space:pre-wrap;font-family:'SF Mono','Fira Code','Roboto Mono',monospace;font-size:0.8125rem;line-height:1.6;background:#f1f5f9;border:1px solid var(--color-border);border-radius:6px;padding:16px;max-height:400px;overflow-y:auto"></div>
-        <button id="copy-rewrite-btn" class="btn" style="background:#059669;color:white;margin-top:12px;width:auto;padding:8px 20px;font-size:0.875rem">
-          <span class="btn-label">Copy to Clipboard</span>
-        </button>
-        <span id="copy-confirmation" style="display:none;margin-left:12px;color:var(--color-approved);font-size:0.875rem;font-weight:600">Copied!</span>
+        <div class="rewrite-block">
+          <div id="rewrite-content"></div>
+          <button id="copy-rewrite-btn" aria-label="Copy rewrite to clipboard">
+            <span class="btn-label">Copy</span>
+          </button>
+          <span id="copy-confirmation" style="display:none">Copied!</span>
+        </div>
       </div>
     </div>
 
@@ -578,16 +950,37 @@
       .then(data => {
         samples = data.samples;
         sampleSelect.innerHTML = '<option value="">— Select a sample —</option>';
+        const pillsContainer = document.getElementById("sample-pills");
+        const loadingEl = document.getElementById("sample-loading");
         for (const s of samples) {
           const opt = document.createElement("option");
           opt.value = s.id;
           opt.textContent = s.title;
           sampleSelect.appendChild(opt);
+
+          // Create pill button
+          const pill = document.createElement("button");
+          pill.className = "sample-pill";
+          pill.type = "button";
+          pill.textContent = s.title;
+          pill.dataset.id = s.id;
+          pill.addEventListener("click", () => {
+            // Update hidden select to keep logic consistent
+            sampleSelect.value = s.id;
+            sampleSelect.dispatchEvent(new Event("change"));
+            // Update active pill
+            pillsContainer.querySelectorAll(".sample-pill").forEach(p => p.classList.remove("active"));
+            pill.classList.add("active");
+          });
+          pillsContainer.appendChild(pill);
         }
+        loadingEl.style.display = "none";
+        pillsContainer.classList.add("loaded");
         loaded.samples = true;
       })
       .catch(() => {
         sampleSelect.innerHTML = '<option value="">Failed to load samples</option>';
+        document.getElementById("sample-loading").textContent = "Failed to load samples";
       });
 
     sampleSelect.addEventListener("change", () => {
@@ -624,7 +1017,13 @@
         const elapsed = Math.floor((Date.now() - startTime) / 1000);
         loadingTimer.textContent = elapsed + "s elapsed";
         const currentStep = steps.filter(s => s.at <= elapsed).pop();
-        if (currentStep) loadingStep.textContent = currentStep.text;
+        if (currentStep && loadingStep.textContent !== currentStep.text) {
+          loadingStep.style.opacity = "0";
+          setTimeout(() => {
+            loadingStep.textContent = currentStep.text;
+            loadingStep.style.opacity = "1";
+          }, 150);
+        }
       }, 1000);
     }
 
@@ -686,14 +1085,31 @@
       badge.textContent = (verdictIcons[result.verdict] || "") + " " + (verdictLabels[result.verdict] || result.verdict);
 
       // Confidence
-      document.getElementById("confidence-value").textContent = Math.round(result.confidence * 100) + "%";
+      const confidencePercent = Math.round(result.confidence * 100);
+      document.getElementById("confidence-value").textContent = confidencePercent + "%";
+
+      // Confidence bar with color based on verdict
+      const bar = document.getElementById("confidence-bar");
+      bar.style.width = "0%";
+      const barColors = {
+        approved: "var(--color-approved)",
+        denied: "var(--color-denied)",
+        "needs-documentation": "var(--color-needs-docs)"
+      };
+      bar.style.background = barColors[result.verdict] || "var(--color-primary)";
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          bar.style.width = confidencePercent + "%";
+        });
+      });
 
       // Reasoning
       const reasoningList = document.getElementById("reasoning-list");
       reasoningList.innerHTML = "";
-      for (const reason of result.reasoning) {
+      for (let i = 0; i < result.reasoning.length; i++) {
         const li = document.createElement("li");
-        li.textContent = reason;
+        li.textContent = result.reasoning[i];
+        li.style.animationDelay = (i * 0.05) + "s";
         reasoningList.appendChild(li);
       }
 
@@ -706,9 +1122,11 @@
         missingSection.style.display = "none";
       } else {
         missingSection.style.display = "block";
-        for (const item of result.missingCriteria) {
+        for (let i = 0; i < result.missingCriteria.length; i++) {
+          const item = result.missingCriteria[i];
           const li = document.createElement("li");
-          li.className = "missing-item";
+          li.className = "missing-item severity-" + item.severity + "-item";
+          li.style.animationDelay = (i * 0.05) + "s";
 
           const icon = document.createElement("span");
           icon.className = "criteria-icon";
@@ -771,11 +1189,16 @@
     // Copy to clipboard
     document.getElementById("copy-rewrite-btn").addEventListener("click", async () => {
       const text = document.getElementById("rewrite-content").textContent;
+      const btn = document.getElementById("copy-rewrite-btn");
       try {
         await navigator.clipboard.writeText(text);
+        btn.classList.add("copied");
         const confirm = document.getElementById("copy-confirmation");
         confirm.style.display = "inline";
-        setTimeout(() => { confirm.style.display = "none"; }, 2000);
+        setTimeout(() => {
+          confirm.style.display = "none";
+          btn.classList.remove("copied");
+        }, 2000);
       } catch {
         // Fallback for older browsers
         const textarea = document.createElement("textarea");

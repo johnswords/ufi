@@ -124,6 +124,7 @@ The on-prem agent wraps these in a LangGraph state machine with MAPI + CDA input
 - **CarrierSelector**: dropdown populated from `/demo/carriers`
 - **SampleSelector**: optional — load a bundled example note
 - **ResultsPanel**: verdict badge (approve/deny/needs-docs), confidence meter, criteria checklist (matched/missing), reasoning narrative
+- **PayerContextPanel**: PA requirement status, payer approval/denial rates from CMS-0057-F transparency data, appeal success rate, average turnaround time, comparison to industry average. Shows "Based on [payer] 2025 data: X% of orthopedic PA requests are approved. Appeal success rate: Y%. Average decision time: Z days."
 - **RewritePanel**: suggested rewrite of physician note addressing missing criteria, with copy-to-clipboard button. Uses `[brackets]` for values the physician must fill in. Only shown when verdict is `needs-documentation` or `denied`.
 
 ### Sample Notes

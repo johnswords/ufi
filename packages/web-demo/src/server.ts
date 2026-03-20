@@ -66,7 +66,7 @@ async function main(): Promise<void> {
 
       // Step 2b: Fetch PA requirements and transparency metrics
       const paRequirements = await repository.getPaRequirements(body.cptCode);
-      const paForCarrier = paRequirements.find((pa) => pa.payer.toLowerCase() === body.carrier!.toLowerCase());
+      const paForCarrier = paRequirements.find((pa) => pa.payer.toLowerCase() === body.carrier?.toLowerCase());
 
       const allMetrics = await repository.getTransparencyMetrics(body.carrier);
       // Prefer MSK/orthopedic category, fall back to overall
