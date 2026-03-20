@@ -12,8 +12,9 @@ import {
 
 const fixtureDirectory = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "cms");
 
-function loadJson(name: string): unknown {
-  return JSON.parse(readFileSync(path.join(fixtureDirectory, name), "utf8"));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture loader
+function loadJson(name: string): Record<string, any> {
+  return JSON.parse(readFileSync(path.join(fixtureDirectory, name), "utf8")) as Record<string, any>;
 }
 
 describe("extractCriteriaFromNarrative", () => {

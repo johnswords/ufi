@@ -41,6 +41,9 @@
           },
           "correctness": {
             "noUnusedFunctionParameters": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
           }
         }
       }
