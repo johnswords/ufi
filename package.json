@@ -9,6 +9,10 @@
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "clean": "turbo run clean",
+    "setup": "./scripts/setup.sh",
+    "start": "./scripts/start.sh",
+    "stop": "./scripts/stop.sh",
+    "demo": "./scripts/start.sh",
     "lint": "biome check .",
     "lint:fix": "biome check --fix .",
     "format": "biome format --write ."

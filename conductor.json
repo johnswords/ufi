@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "setup": "pnpm install && mkdir -p .context/attachments .context/plans",
+    "run": "PORT=${CONDUCTOR_PORT:-3000} pnpm --filter @ufi/web-demo start"
+  },
+  "runScriptMode": "nonconcurrent"
+}
