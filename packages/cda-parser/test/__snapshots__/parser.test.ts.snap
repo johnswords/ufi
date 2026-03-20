@@ -1,0 +1,387 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parseCdaDocument > parses base64 encoded CDA content 1`] = `
+{
+  "assessmentPlan": {
+    "assessment": "Assessment: severe tricompartmental osteoarthritis of the right knee.",
+    "plan": "Plan: proceed with total knee replacement pending authorization.",
+  },
+  "clinicalNotes": [
+    {
+      "id": "clinical-note-1",
+      "text": "Patient reports worsening right knee pain for 18 months.
+Failed 6 weeks of supervised physical therapy and NSAIDs.",
+    },
+  ],
+  "insuranceProviders": [
+    {
+      "name": "Aetna",
+      "payerType": undefined,
+      "planCategory": "PPO",
+    },
+  ],
+  "medications": [
+    {
+      "code": "RX123",
+      "dosage": "500mg",
+      "name": "Naproxen",
+      "status": "active",
+    },
+  ],
+  "problems": [
+    {
+      "code": "M17.11",
+      "description": "Unilateral primary osteoarthritis, right knee",
+      "status": "active",
+    },
+  ],
+  "procedures": [
+    {
+      "code": "27447",
+      "description": "Total knee arthroplasty",
+      "performedAt": "2026-03-19T00:00:00.000Z",
+    },
+  ],
+  "raw": {
+    "?xml": {
+      "encoding": "UTF-8",
+      "version": "1.0",
+    },
+    "ClinicalDocument": {
+      "#text": "
+  
+",
+      "component": {
+        "#text": "
+    
+  ",
+        "structuredBody": {
+          "#text": "
+      
+      
+      
+      
+      
+      
+      
+      
+    ",
+          "component": [
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "34109-9",
+                  "displayName": "History of present illness",
+                },
+                "text": {
+                  "#text": "
+            
+            
+          ",
+                  "paragraph": [
+                    "Patient reports worsening right knee pain for 18 months.",
+                    "Failed 6 weeks of supervised physical therapy and NSAIDs.",
+                  ],
+                },
+                "title": "Clinical Notes",
+              },
+            },
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "11450-4",
+                  "displayName": "Problem list",
+                },
+                "entry": {
+                  "#text": "
+            
+          ",
+                  "act": {
+                    "#text": "
+              
+            ",
+                    "entryRelationship": {
+                      "#text": "
+                
+              ",
+                      "observation": {
+                        "#text": "
+                  
+                  
+                ",
+                        "statusCode": {
+                          "code": "active",
+                        },
+                        "value": {
+                          "code": "M17.11",
+                          "displayName": "Unilateral primary osteoarthritis, right knee",
+                        },
+                      },
+                    },
+                  },
+                },
+                "title": "Problems",
+              },
+            },
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "47519-4",
+                  "displayName": "History of procedures",
+                },
+                "entry": {
+                  "#text": "
+            
+          ",
+                  "procedure": {
+                    "#text": "
+              
+              
+            ",
+                    "code": {
+                      "code": "27447",
+                      "displayName": "Total knee arthroplasty",
+                    },
+                    "effectiveTime": {
+                      "value": "20260319",
+                    },
+                  },
+                },
+                "title": "Procedures",
+              },
+            },
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "10160-0",
+                  "displayName": "History of medication use",
+                },
+                "entry": {
+                  "#text": "
+            
+          ",
+                  "substanceAdministration": {
+                    "#text": "
+              
+              
+              
+            ",
+                    "consumable": {
+                      "#text": "
+                
+              ",
+                      "manufacturedProduct": {
+                        "#text": "
+                  
+                ",
+                        "manufacturedMaterial": {
+                          "#text": "
+                    
+                  ",
+                          "code": {
+                            "code": "RX123",
+                            "displayName": "Naproxen",
+                          },
+                        },
+                      },
+                    },
+                    "doseQuantity": {
+                      "value": "500mg",
+                    },
+                    "statusCode": {
+                      "code": "active",
+                    },
+                  },
+                },
+                "title": "Medications",
+              },
+            },
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "48768-6",
+                  "displayName": "Payers",
+                },
+                "entry": {
+                  "#text": "
+            
+          ",
+                  "participant": {
+                    "#text": "
+              
+            ",
+                    "participantRole": {
+                      "#text": "
+                
+                
+              ",
+                      "id": {
+                        "extension": "PPO",
+                      },
+                      "playingEntity": {
+                        "#text": "
+                  
+                ",
+                        "name": "Aetna",
+                      },
+                    },
+                  },
+                },
+                "title": "Insurance Providers",
+              },
+            },
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "51847-2",
+                  "displayName": "Assessment and plan",
+                },
+                "text": {
+                  "#text": "
+            
+            
+          ",
+                  "paragraph": [
+                    "Assessment: severe tricompartmental osteoarthritis of the right knee.",
+                    "Plan: proceed with total knee replacement pending authorization.",
+                  ],
+                },
+                "title": "Assessment and Plan",
+              },
+            },
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "8716-3",
+                  "displayName": "Vital signs",
+                },
+                "entry": {
+                  "#text": "
+            
+          ",
+                  "organizer": {
+                    "#text": "
+              
+            ",
+                    "component": {
+                      "#text": "
+                
+              ",
+                      "observation": {
+                        "#text": "
+                  
+                  
+                  
+                ",
+                        "code": {
+                          "code": "39156-5",
+                          "displayName": "Body mass index",
+                        },
+                        "effectiveTime": {
+                          "value": "20260319103000-0500",
+                        },
+                        "value": {
+                          "unit": "kg/m2",
+                          "value": "34",
+                        },
+                      },
+                    },
+                  },
+                },
+                "title": "Vital Signs",
+              },
+            },
+            {
+              "#text": "
+        
+      ",
+              "section": {
+                "#text": "
+          
+          
+          
+        ",
+                "code": {
+                  "code": "99999-9",
+                  "displayName": "Unmapped Section",
+                },
+                "text": {
+                  "#text": "
+            
+          ",
+                  "paragraph": "This content should remain available in the raw output.",
+                },
+                "title": "Unmapped Section",
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+  "vitalSigns": [
+    {
+      "recordedAt": "2026-03-19T10:30:00-05:00",
+      "type": "Body mass index",
+      "unit": "kg/m2",
+      "value": 34,
+    },
+  ],
+}
+`;

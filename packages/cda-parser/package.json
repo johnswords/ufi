@@ -1,0 +1,19 @@
+{
+  "name": "@ufi/cda-parser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit false --outDir dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf coverage dist"
+  },
+  "dependencies": {
+    "@ufi/shared": "workspace:*",
+    "fast-xml-parser": "^5.3.0"
+  }
+}

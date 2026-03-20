@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument>
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <title>Broken</title>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument

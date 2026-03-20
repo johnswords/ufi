@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.5.1" />
+          <title>Problems</title>
+          <entry>
+            <act>
+              <entryRelationship>
+                <observation>
+                  <statusCode code="active" />
+                  <value code="E66.01" displayName="Morbid obesity due to excess calories" />
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.22.2.10" />
+          <title>Plan of Treatment</title>
+          <text>
+            <paragraph>Assessment: patient meets qualifying obesity diagnosis criteria.</paragraph>
+            <paragraph>Plan: submit for laparoscopic sleeve gastrectomy authorization.</paragraph>
+          </text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ClinicalDocument xmlns="urn:hl7-org:v3">
+  <component>
+    <structuredBody>
+      <component>
+        <section>
+          <code code="34109-9" displayName="History of present illness" />
+          <title>Clinical Notes</title>
+          <text>
+            <paragraph>Patient reports worsening right knee pain for 18 months.</paragraph>
+            <paragraph>Failed 6 weeks of supervised physical therapy and NSAIDs.</paragraph>
+          </text>
+        </section>
+      </component>
+      <component>
+        <section>
+          <code code="11450-4" displayName="Problem list" />
+          <title>Problems</title>
+          <entry>
+            <act>
+              <entryRelationship>
+                <observation>
+                  <statusCode code="active" />
+                  <value code="M17.11" displayName="Unilateral primary osteoarthritis, right knee" />
+                </observation>
+              </entryRelationship>
+            </act>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <code code="47519-4" displayName="History of procedures" />
+          <title>Procedures</title>
+          <entry>
+            <procedure>
+              <code code="27447" displayName="Total knee arthroplasty" />
+              <effectiveTime value="20260319" />
+            </procedure>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <code code="10160-0" displayName="History of medication use" />
+          <title>Medications</title>
+          <entry>
+            <substanceAdministration>
+              <statusCode code="active" />
+              <doseQuantity value="500mg" />
+              <consumable>
+                <manufacturedProduct>
+                  <manufacturedMaterial>
+                    <code code="RX123" displayName="Naproxen" />
+                  </manufacturedMaterial>
+                </manufacturedProduct>
+              </consumable>
+            </substanceAdministration>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <code code="48768-6" displayName="Payers" />
+          <title>Insurance Providers</title>
+          <entry>
+            <participant>
+              <participantRole>
+                <id extension="PPO" />
+                <playingEntity>
+                  <name>Aetna</name>
+                </playingEntity>
+              </participantRole>
+            </participant>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <code code="51847-2" displayName="Assessment and plan" />
+          <title>Assessment and Plan</title>
+          <text>
+            <paragraph>Assessment: severe tricompartmental osteoarthritis of the right knee.</paragraph>
+            <paragraph>Plan: proceed with total knee replacement pending authorization.</paragraph>
+          </text>
+        </section>
+      </component>
+      <component>
+        <section>
+          <code code="8716-3" displayName="Vital signs" />
+          <title>Vital Signs</title>
+          <entry>
+            <organizer>
+              <component>
+                <observation>
+                  <code code="39156-5" displayName="Body mass index" />
+                  <effectiveTime value="20260319103000-0500" />
+                  <value value="34" unit="kg/m2" />
+                </observation>
+              </component>
+            </organizer>
+          </entry>
+        </section>
+      </component>
+      <component>
+        <section>
+          <code code="99999-9" displayName="Unmapped Section" />
+          <title>Unmapped Section</title>
+          <text>
+            <paragraph>This content should remain available in the raw output.</paragraph>
+          </text>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>
