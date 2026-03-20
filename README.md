@@ -1,4 +1,4 @@
-# UFI MedEnt
+# UFI
 
 Predictive surgical approval intelligence. Paste a physician note, select a CPT code and insurance carrier, and get an instant prediction of whether the procedure will be approved, denied, or needs additional documentation — with specific reasoning, missing criteria, and a suggested rewrite.
 
