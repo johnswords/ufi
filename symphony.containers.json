@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "agent": {
+    "image": "symphony-agent:latest",
+    "env_passthrough": [
+      "ANTHROPIC_API_KEY",
+      "OPENAI_API_KEY",
+      "FIRECRAWL_API_KEY",
+      "NGROK_API_KEY",
+      "OLLAMA_MODEL",
+      "OLLAMA_BASE_URL",
+      "MAPI_REGISTRATION_ID",
+      "MAPI_BASE_URL",
+      "PORT"
+    ]
+  },
+  "lifecycle": {
+    "setup": [
+      "./scripts/setup.sh"
+    ],
+    "start": [
+      "./scripts/start.sh"
+    ],
+    "teardown": [
+      "./scripts/stop.sh"
+    ]
+  }
+}
