@@ -108,6 +108,7 @@ describe("syncCmsCoverageRules", () => {
     expect(secondRun.upsertedRules).toBe(0);
     expect(secondState).toEqual(firstState);
     expect(await repository.countRules()).toBe(firstState.length);
+    expect(firstState.some((rule) => rule.sourceType === "cms_ncd" && rule.cptCode === "43775")).toBe(true);
     expect(await repository.getSyncCursor("cms_lcd")).toEqual(
       expect.objectContaining({
         source: "cms_lcd",

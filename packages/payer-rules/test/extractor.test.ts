@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { extractCriteriaFromNarrative } from "../src/extractor.js";
+import {
+  extractCriteriaFromNarrative,
+  inferProcedureCodesFromCmsTexts
+} from "../src/extractor.js";
 
 const fixtureDirectory = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -60,8 +63,23 @@ describe("extractCriteriaFromNarrative", () => {
     ).toBe(true);
     expect(
       criteria.some(
-        (criterion) => criterion.type === "narrative"
+        (criterion) =>
+          criterion.type === "narrative" &&
+          /facility certification|local coverage article/i.test(criterion.text)
       )
     ).toBe(true);
+  });
+
+  it("infers CPT codes for bariatric procedures mentioned in CMS narrative", () => {
+    const ncd = loadJson("data-ncd-57.json").data[0];
+
+    const procedureCodes = inferProcedureCodesFromCmsTexts([
+      ncd.item_service_description,
+      ncd.indications_limitations
+    ]);
+
+    expect(procedureCodes.map((code) => code.cptCode)).toEqual(
+      expect.arrayContaining(["43644", "43846", "43770", "43775", "43845"])
+    );
   });
 });
