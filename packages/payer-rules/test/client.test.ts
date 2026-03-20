@@ -68,6 +68,10 @@ describe("CmsCoverageClient", () => {
         return jsonResponse(loadFixture("data-lcd-related-documents-33411.json"));
       }
 
+      if (url.pathname === "/v1/data/article/" && url.searchParams.get("articleid") === "57145") {
+        return jsonResponse(loadFixture("data-article-a57145.json"));
+      }
+
       if (url.pathname === "/v1/data/article/hcpc-code" && url.searchParams.get("articleid") === "57145") {
         return jsonResponse(
           url.searchParams.get("next_token") === "page-2" ? articlePageTwo : articlePageOne
@@ -80,10 +84,12 @@ describe("CmsCoverageClient", () => {
     const client = new CmsCoverageClient({ fetchImplementation });
     const lcd = await client.getLcd(33411, 29);
     const related = await client.getLcdRelatedDocuments(33411, 29);
+    const article = await client.getArticle(57145, 32);
     const codes = await client.getArticleHcpcCodes(57145, 32, 3);
 
     expect(lcd.lcd_id).toBe(33411);
     expect(related).toHaveLength(1);
+    expect(article.title).toContain("Surgical Management of Morbid Obesity");
     expect(codes).toHaveLength(7);
 
     expect(requests[0]?.url).toBe("/v1/metadata/license-agreement/");
@@ -91,6 +97,7 @@ describe("CmsCoverageClient", () => {
     expect(requests[2]?.authorization).toBe("Bearer 18926c74-c9e1-4d73-8140-e55254abc293");
     expect(requests[3]?.authorization).toBe("Bearer 18926c74-c9e1-4d73-8140-e55254abc293");
     expect(requests[4]?.authorization).toBe("Bearer 18926c74-c9e1-4d73-8140-e55254abc293");
+    expect(requests[5]?.authorization).toBe("Bearer 18926c74-c9e1-4d73-8140-e55254abc293");
   });
 
   it("paginates the LCD report listing with next_token", async () => {
