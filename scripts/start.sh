@@ -79,27 +79,41 @@ if [ "$TUNNEL" = true ]; then
 
   echo ""
   echo "Starting ngrok tunnel..."
-  ngrok http "$PORT" --log=stdout > /dev/null 2>&1 &
+  NGROK_LOG=$(mktemp)
+  ngrok http "$PORT" --log=stderr 2>"$NGROK_LOG" &
   NGROK_PID=$!
   echo "$NGROK_PID" > "$NGROK_PID_FILE"
 
-  # Wait for ngrok to establish tunnel and get the URL
-  sleep 3
-  NGROK_URL=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | python3 -c "
+  # Wait for ngrok to establish tunnel
+  NGROK_URL=""
+  for i in $(seq 1 10); do
+    # Check if ngrok died (auth error, etc.)
+    if ! kill -0 "$NGROK_PID" 2>/dev/null; then
+      echo "Error: ngrok failed to start."
+      grep -i "err\|error\|failed" "$NGROK_LOG" | grep -v "lvl=info" | head -5
+      rm -f "$NGROK_LOG" "$NGROK_PID_FILE"
+      break
+    fi
+
+    NGROK_URL=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | python3 -c "
 import sys, json
 try:
     data = json.load(sys.stdin)
     for t in data.get('tunnels', []):
         if t.get('proto') == 'https':
-            print(t['public_url'])
-            break
+            print(t['public_url']); break
     else:
         for t in data.get('tunnels', []):
-            print(t.get('public_url', ''))
-            break
-except:
-    pass
+            print(t.get('public_url', '')); break
+except: pass
 " 2>/dev/null || true)
+
+    if [ -n "$NGROK_URL" ]; then
+      break
+    fi
+    sleep 1
+  done
+  rm -f "$NGROK_LOG"
 
   if [ -n "$NGROK_URL" ]; then
     echo ""
@@ -108,10 +122,6 @@ except:
     echo "=========================================="
     echo ""
     echo "Share this URL for external access."
-    echo "Note: Anyone with this URL can use the demo."
-  else
-    echo "Warning: ngrok started but couldn't retrieve public URL."
-    echo "Check http://localhost:4040 for the tunnel URL."
   fi
 fi
 
